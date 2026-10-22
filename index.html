@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>CGV 리디자인</title>
+<title>CGV 리디자인 (Copy)</title>
 <style>
 :root{--bg:#fff;--fg:#111;--hd:#d9d9d9;--ph:#ababab;--soft:#d9d9d9;--card:#fff;--dim:rgba(0,0,0,.6);--red:#e71a0f;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -96,10 +96,7 @@ button.circ:hover,button.circ.on{background:var(--red);color:#fff}
     <button onclick="go('movies')">전체 영화 보기</button>
     <button onclick="rot(1)" aria-label="다음">다음 ›</button>
   </div>
-  <div class="dark">
-    <div class="hero"><div class="screen" id="hs" onclick="go('theater')" role="button" tabindex="0">IMAX</div></div>
-    <div class="tabs" id="ht"></div>
-  </div>
+  <div class="th" id="thHome" style="min-height:0;padding:80px 0 64px"></div>
 </section>
 
 <section class="page" id="movies">
@@ -108,11 +105,7 @@ button.circ:hover,button.circ.on{background:var(--red);color:#fff}
 </section>
 
 <section class="page" id="theater">
-  <div class="th" id="th">
-    <div class="stagebox"><div class="wing l"></div><div class="screen" id="ts"></div><div class="wing r"></div></div>
-    <div class="desc" id="td"></div>
-    <div class="tabs" id="tt" style="padding:0 16px"></div>
-  </div>
+  <div class="th" id="thPage"></div>
 </section>
 
 <section class="page" id="store">
@@ -137,7 +130,7 @@ function route(){
   let p=location.hash.slice(1);if(!["home","movies","theater","store"].includes(p))p="home";
   document.querySelectorAll(".page").forEach(e=>e.classList.toggle("on",e.id===p));
   document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.n===p));
-  closeM();scrollTo(0,0);if(p==="theater")showT(fmt in fmts&&["laser","IMAX","SCREENX","4DX","Dolby Atmos"].includes(fmt)?fmt:"IMAX");
+  closeM();scrollTo(0,0);
 }
 addEventListener("hashchange",route);
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
@@ -159,14 +152,16 @@ function rot(d){cur=(cur+d+movies.length)%movies.length;drawStage()}
 addEventListener("keydown",e=>{if(e.key==="Escape")closeM();if($("#home").classList.contains("on")&&!$("#ov").classList.contains("on")){if(e.key==="ArrowLeft")rot(-1);if(e.key==="ArrowRight")rot(1)}});
 
 /* home format tabs */
-function drawHT(){
-  const ht=$("#ht");ht.innerHTML="";
-  ["IMAX","SCREENX","SOUNDX","PRESTIGE","Dolby Atmos"].forEach(k=>{
-    const b=document.createElement("button");b.textContent=k;b.className=k===fmt?"on":"";
-    b.onmouseenter=b.onfocus=()=>{fmt=k;$("#hs").textContent=k;ht.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b))};
-    b.onclick=()=>{fmt=k;go("theater")};ht.appendChild(b)});
+const TABS=["laser","IMAX","SCREENX","4DX","Dolby Atmos"];
+function mounts(){
+  document.querySelectorAll(".th").forEach(el=>{
+    const home=el.id==="thHome";
+    el.innerHTML='<div class="stagebox"><div class="wing l"></div><div class="screen"'+(home?' role="button" tabindex="0" aria-label="특별관 자세히 보기"':'')+'></div><div class="wing r"></div></div><div class="desc"></div><div class="tabs" style="padding:0 16px"></div>';
+    const sc=el.querySelector(".screen"),t=el.querySelector(".tabs");
+    TABS.forEach(k=>{const b=document.createElement("button");b.textContent=k;b.dataset.k=k;b.onclick=()=>showT(k);t.appendChild(b)});
+    if(home){sc.style.cursor="pointer";sc.onclick=()=>go("theater");sc.onkeydown=e=>{if(e.key==="Enter")go("theater")}}
+  });
 }
-$("#hs").onkeydown=e=>{if(e.key==="Enter")go("theater")};
 
 /* movies + store grids */
 function grid(el,list,label,feat){
@@ -186,16 +181,14 @@ function drawStore(){
 }
 
 /* theater */
-function drawTT(){
-  const t=$("#tt");t.innerHTML="";
-  ["laser","IMAX","SCREENX","4DX","Dolby Atmos"].forEach(k=>{
-    const b=document.createElement("button");b.textContent=k;b.dataset.k=k;b.onclick=()=>showT(k);t.appendChild(b)});
-}
 function showT(k){
-  fmt=k;const f=fmts[k],s=$("#ts");
-  s.style.setProperty("--w",f[2].w);s.style.setProperty("--h",f[2].h);s.textContent=f[0];
-  $("#th").classList.toggle("sx",k==="SCREENX");$("#td").textContent=f[1];
-  document.querySelectorAll("#tt button").forEach(b=>b.classList.toggle("on",b.dataset.k===k));
+  fmt=k;const f=fmts[k];
+  document.querySelectorAll(".th").forEach(el=>{
+    const s=el.querySelector(".screen");
+    s.style.setProperty("--w",f[2].w);s.style.setProperty("--h",f[2].h);s.textContent=f[0];
+    el.classList.toggle("sx",k==="SCREENX");el.querySelector(".desc").textContent=f[1];
+    el.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.k===k));
+  });
 }
 
 /* modal */
@@ -219,7 +212,7 @@ function openM(m,label){
 function closeM(){$("#ov").classList.remove("on")}
 $("#ov").onclick=e=>{if(e.target.id==="ov")closeM()};
 
-drawStage();drawHT();drawMovies();drawStore();drawTT();route();
+drawStage();drawMovies();drawStore();mounts();showT(fmt);route();
 </script>
 </body>
 </html>
