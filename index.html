@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>CGV 리디자인</title>
+  <title>CGV 리디자인 (Copy)</title>
   <style>
     :root {
       --bg: #fff;
@@ -88,19 +88,52 @@
       background: var(--hd);
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       padding: 0 24px;
     }
 
-    .logo {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* 뒤로가기 버튼 */
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.08);
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    .btn-back:hover {
+      background: rgba(0, 0, 0, 0.16);
+    }
+
+    .btn-back.hidden {
+      display: none;
+    }
+
+    /* 로고 이미지 영역 */
+    .logo-btn {
+      display: flex;
+      align-items: center;
+      padding: 0;
+    }
+
+    .logo-img {
+      height: 32px;
+      width: auto;
+      object-fit: contain;
+      display: block;
     }
 
     nav {
-      position: absolute;
-      right: 24px;
       display: flex;
       gap: 6px;
     }
@@ -137,31 +170,81 @@
       display: block;
     }
 
-    /* Home Carousel Stage */
+    /* Home Carousel Stage (smooth animations) */
     .stage {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 24px;
       padding: 80px 16px 40px;
       min-height: 560px;
       overflow: hidden;
     }
 
+    .stage-track {
+      position: relative;
+      width: 100%;
+      max-width: 1000px;
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 부드러운 트랜지션을 위한 카드 스타일 */
     .stage .ph {
+      position: absolute;
       width: clamp(70px, 11vw, 168px);
       aspect-ratio: 7 / 10;
       cursor: pointer;
-      transition: all 0.35s;
-      flex: none;
       font-size: 13px;
+      border-radius: 12px;
+      /* 부드러운 전환 효과 핵심 */
+      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                  width 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                  opacity 0.4s ease,
+                  box-shadow 0.4s ease;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(0) scale(0.8);
+      z-index: 1;
     }
 
-    .stage .ph.c {
+    .stage .ph[data-pos="-2"] {
+      transform: translateX(-260px) scale(0.85);
+      opacity: 0.4;
+      pointer-events: auto;
+    }
+
+    .stage .ph[data-pos="-1"] {
+      transform: translateX(-140px) scale(0.95);
+      opacity: 0.75;
+      pointer-events: auto;
+      z-index: 2;
+    }
+
+    .stage .ph[data-pos="0"] {
       width: clamp(110px, 17vw, 256px);
       aspect-ratio: 256 / 362;
       font-size: 18px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      transform: translateX(0) scale(1);
+      opacity: 1;
+      pointer-events: auto;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+      z-index: 5;
+    }
+
+    .stage .ph[data-pos="1"] {
+      transform: translateX(140px) scale(0.95);
+      opacity: 0.75;
+      pointer-events: auto;
+      z-index: 2;
+    }
+
+    .stage .ph[data-pos="2"] {
+      transform: translateX(260px) scale(0.85);
+      opacity: 0.4;
+      pointer-events: auto;
     }
 
     .ctl {
@@ -177,6 +260,7 @@
       border-radius: 999px;
       background: var(--hd);
       font-size: 14px;
+      transition: background 0.2s, color 0.2s;
     }
 
     .ctl button:hover,
@@ -248,6 +332,7 @@
       cursor: pointer;
       transition: transform 0.2s;
       font-size: 14px;
+      border-radius: 8px;
     }
 
     .grid .ph:hover {
@@ -309,6 +394,7 @@
       position: relative;
       z-index: 2;
       border: 3px solid #000;
+      transition: width 0.4s ease, height 0.4s ease;
     }
 
     .wing {
@@ -406,6 +492,7 @@
       width: 210px;
       aspect-ratio: 210 / 297;
       flex: none;
+      border-radius: 8px;
     }
 
     .info {
@@ -495,20 +582,15 @@
 
     /* Mobile Responsive */
     @media (max-width: 700px) {
-      nav {
-        position: static;
-        margin-left: auto;
-      }
       header {
-        justify-content: space-between;
         padding: 0 12px;
       }
       nav button {
         padding: 6px;
         font-size: 12px;
       }
-      .logo {
-        font-size: 18px;
+      .logo-img {
+        height: 26px;
       }
       .top {
         flex-direction: column;
@@ -519,12 +601,15 @@
       .modal {
         padding: 24px;
       }
-      .stage .ph:not(.c) {
-        display: none;
+      .stage .ph[data-pos="-2"],
+      .stage .ph[data-pos="2"] {
+        opacity: 0;
       }
-      .stage .ph.n {
-        display: flex;
-        width: 60px;
+      .stage .ph[data-pos="-1"] {
+        transform: translateX(-90px) scale(0.85);
+      }
+      .stage .ph[data-pos="1"] {
+        transform: translateX(90px) scale(0.85);
       }
     }
   </style>
@@ -532,10 +617,20 @@
 <body>
 
   <header>
-    <button class="logo" onclick="go('home')" aria-label="홈으로">LOGO</button>
+    <div class="header-left">
+      <!-- 뒤로가기 버튼 -->
+      <button class="btn-back hidden" id="btnBack" onclick="goBack()" aria-label="이전 페이지로">‹ 뒤로</button>
+      
+      <!-- 로고 (이미지 경로 src 속성에 적용 가능) -->
+      <button class="logo-btn" onclick="go('home')" aria-label="홈으로">
+        <img class="logo-img" src="logo.png" alt="CGV" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <span class="logo-fallback" style="display:none; font-size:22px; font-weight:700;">LOGO</span>
+      </button>
+    </div>
+
+    <!-- 네비게이션 (씨네톡 삭제 완료) -->
     <nav>
       <button data-n="my">내 예매/예약</button>
-      <button data-n="talk">씨네톡</button>
       <button data-n="store">매점</button>
       <button data-n="profile">프로필</button>
     </nav>
@@ -543,7 +638,9 @@
 
   <!-- 홈 페이지 -->
   <section class="page" id="home">
-    <div class="stage" id="stage"></div>
+    <div class="stage">
+      <div class="stage-track" id="stageTrack"></div>
+    </div>
     <div class="ctl">
       <button onclick="rot(-1)" aria-label="이전">‹ 이전</button>
       <button onclick="go('movies')">전체 영화 보기</button>
@@ -582,6 +679,7 @@
       "마지막 상영관", "여름의 끝", "비밀 정원", "도시의 빛", "첫눈",
       "검은 파도", "소란한 하루", "오후 세 시", "낯선 이웃", "종이 달"
     ].map((t, i) => ({
+      id: i,
       t,
       sub: ["드라마 · 118분", "스릴러 · 104분", "범죄 · 126분", "로맨스 · 112분", "SF · 135분"][i % 5],
       d: "예고편에서 다 보여주지 않은 이야기. 극장에서 가장 잘 보이도록 만든 작품으로, 줄거리 소개 영역에 들어갈 샘플 텍스트입니다. 실제 서비스에서는 시놉시스가 여기에 표시됩니다."
@@ -613,9 +711,17 @@
     let cur = 2;
     let fmt = "IMAX";
 
-    /* Routing Function */
+    /* Routing & History Back Support */
     function go(p) {
       location.hash = p;
+    }
+
+    function goBack() {
+      if (history.length > 1) {
+        history.back();
+      } else {
+        go('home');
+      }
     }
 
     function route() {
@@ -625,6 +731,14 @@
       document.querySelectorAll(".page").forEach(e => e.classList.toggle("on", e.id === p));
       document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.n === p));
       
+      // 홈 화면이 아닐 경우 뒤로가기 버튼 표시
+      const btnBack = $("#btnBack");
+      if (p === "home") {
+        btnBack.classList.add("hidden");
+      } else {
+        btnBack.classList.remove("hidden");
+      }
+
       closeM();
       scrollTo(0, 0);
     }
@@ -637,7 +751,6 @@
         if (n === "store") go("store");
         else toast({
           my: "내 예매/예약 내역은 로그인 후 확인할 수 있어요",
-          talk: "씨네톡은 준비 중이에요",
           profile: "프로필은 로그인 후 확인할 수 있어요"
         }[n]);
       };
@@ -653,27 +766,52 @@
       tt = setTimeout(() => t.classList.remove("on"), 2200);
     }
 
-    /* Carousel Logic */
-    function drawStage() {
-      const s = $("#stage");
-      s.innerHTML = "";
-      [-2, -1, 0, 1, 2].forEach(o => {
-        const i = (cur + o + movies.length) % movies.length;
-        const m = movies[i];
+    /* Smooth Carousel Stage Initialization & Update */
+    function initStage() {
+      const track = $("#stageTrack");
+      track.innerHTML = "";
+      
+      // 모든 카드 엘리먼트를 생성 후 위치 업데이트
+      movies.forEach((m, idx) => {
         const b = document.createElement("button");
-        
-        b.className = "ph" + (o === 0 ? " c" : "") + (Math.abs(o) === 1 ? " n" : "");
+        b.className = "ph";
         b.textContent = m.t;
         b.setAttribute("aria-label", m.t);
-        b.onclick = () => o === 0 ? openM(m, "영화") : (cur = i, drawStage());
+        b.dataset.id = idx;
+        track.appendChild(b);
+      });
+      updateStage();
+    }
+
+    function updateStage() {
+      const track = $("#stageTrack");
+      const cards = track.querySelectorAll(".ph");
+      
+      cards.forEach((card) => {
+        const idx = parseInt(card.dataset.id, 10);
+        let diff = idx - cur;
         
-        s.appendChild(b);
+        // Circular index calculation
+        if (diff < -Math.floor(movies.length / 2)) diff += movies.length;
+        if (diff > Math.floor(movies.length / 2)) diff -= movies.length;
+        
+        card.setAttribute("data-pos", diff);
+        
+        const m = movies[idx];
+        card.onclick = () => {
+          if (diff === 0) {
+            openM(m, "영화");
+          } else {
+            cur = idx;
+            updateStage();
+          }
+        };
       });
     }
 
     function rot(d) {
       cur = (cur + d + movies.length) % movies.length;
-      drawStage();
+      updateStage();
     }
 
     addEventListener("keydown", e => {
@@ -810,7 +948,7 @@
     };
 
     /* App Initialization */
-    drawStage();
+    initStage();
     drawMovies();
     drawStore();
     mounts();
