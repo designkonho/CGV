@@ -3,17 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>CGV 리디자인 (Copy)</title>
+  <title>CGV 리디자인</title>
   <style>
     :root {
       --bg: #fff;
       --fg: #111;
-      --hd: #d9d9d9;
-      --ph: #ababab;
-      --soft: #d9d9d9;
+      --gray: #242424;
+      --hd: #242424;
+      --ph: #242424;
+      --soft: #242424;
       --card: #fff;
+      --line: #e3e3e3;
       --dim: rgba(0, 0, 0, 0.6);
-      --red: #e71a0f;
+      --red: #FF0001;
       box-sizing: border-box;
       padding-top: env(safe-area-inset-top, 0px);
       padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -21,24 +23,20 @@
 
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
-        --bg: #161616;
+        --bg: #0d0d0d;
         --fg: #f2f2f2;
-        --hd: #2a2a2a;
-        --ph: #4a4a4a;
-        --soft: #3a3a3a;
-        --card: #222;
-        --dim: rgba(0, 0, 0, 0.7);
+        --card: #1a1a1a;
+        --line: #333;
+        --dim: rgba(0, 0, 0, 0.75);
       }
     }
 
     :root[data-theme="dark"] {
-      --bg: #161616;
+      --bg: #0d0d0d;
       --fg: #f2f2f2;
-      --hd: #2a2a2a;
-      --ph: #4a4a4a;
-      --soft: #3a3a3a;
-      --card: #222;
-      --dim: rgba(0, 0, 0, 0.7);
+      --card: #1a1a1a;
+      --line: #333;
+      --dim: rgba(0, 0, 0, 0.75);
     }
 
     * {
@@ -73,10 +71,13 @@
       cursor: pointer;
     }
 
-    button:focus-visible,
-    a:focus-visible {
+    button:focus-visible {
       outline: 2px solid var(--red);
       outline-offset: 2px;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
     }
 
     /* Header & Navigation */
@@ -86,40 +87,13 @@
       z-index: 20;
       height: 64px;
       background: var(--hd);
+      color: #fff;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 24px;
     }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    /* 뒤로가기 버튼 */
-    .btn-back {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 6px 12px;
-      font-size: 14px;
-      font-weight: 600;
-      border-radius: 6px;
-      background: rgba(0, 0, 0, 0.08);
-      transition: background 0.2s, opacity 0.2s;
-    }
-
-    .btn-back:hover {
-      background: rgba(0, 0, 0, 0.16);
-    }
-
-    .btn-back.hidden {
-      display: none;
-    }
-
-    /* 로고 이미지 영역 */
     .logo-btn {
       display: flex;
       align-items: center;
@@ -128,8 +102,6 @@
 
     .logo-img {
       height: 32px;
-      width: auto;
-      object-fit: contain;
       display: block;
     }
 
@@ -146,10 +118,42 @@
 
     nav button:hover,
     nav button.on {
-      background: rgba(128, 128, 128, 0.25);
+      background: rgba(255, 255, 255, 0.16);
     }
 
-    /* Common Components */
+    nav button.on {
+      color: var(--red);
+    }
+
+    /* Top Back Bar */
+    .backbar {
+      position: sticky;
+      top: calc(env(safe-area-inset-top, 0px) + 64px);
+      height: 0;
+      z-index: 15;
+    }
+
+    .btn-back {
+      position: absolute;
+      left: 24px;
+      top: 14px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 999px;
+      background: var(--gray);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .btn-back:hover {
+      background: var(--red);
+    }
+
+    .hidden {
+      display: none;
+    }
+
     .ph {
       background: var(--ph);
       display: flex;
@@ -170,9 +174,8 @@
       display: block;
     }
 
-    /* Home Carousel Stage (smooth animations) */
+    /* Carousel Stage */
     .stage {
-      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -182,42 +185,40 @@
     }
 
     .stage-track {
+      --s1: clamp(120px, 21vw, 330px);
+      --s2: calc(var(--s1) * 1.8);
       position: relative;
       width: 100%;
-      max-width: 1000px;
       height: 400px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    /* 부드러운 트랜지션을 위한 카드 스타일 */
     .stage .ph {
       position: absolute;
       width: clamp(70px, 11vw, 168px);
       aspect-ratio: 7 / 10;
-      cursor: pointer;
       font-size: 13px;
       border-radius: 12px;
-      /* 부드러운 전환 효과 핵심 */
-      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-                  width 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-                  opacity 0.4s ease,
-                  box-shadow 0.4s ease;
       opacity: 0;
       pointer-events: none;
-      transform: translateX(0) scale(0.8);
+      transform: scale(0.8);
       z-index: 1;
+      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                  width 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                  opacity 0.4s,
+                  box-shadow 0.4s;
     }
 
     .stage .ph[data-pos="-2"] {
-      transform: translateX(-260px) scale(0.85);
+      transform: translateX(calc(var(--s2) * -1)) scale(0.85);
       opacity: 0.4;
       pointer-events: auto;
     }
 
     .stage .ph[data-pos="-1"] {
-      transform: translateX(-140px) scale(0.95);
+      transform: translateX(calc(var(--s1) * -1)) scale(0.95);
       opacity: 0.75;
       pointer-events: auto;
       z-index: 2;
@@ -227,7 +228,7 @@
       width: clamp(110px, 17vw, 256px);
       aspect-ratio: 256 / 362;
       font-size: 18px;
-      transform: translateX(0) scale(1);
+      transform: none;
       opacity: 1;
       pointer-events: auto;
       box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
@@ -235,14 +236,14 @@
     }
 
     .stage .ph[data-pos="1"] {
-      transform: translateX(140px) scale(0.95);
+      transform: translateX(var(--s1)) scale(0.95);
       opacity: 0.75;
       pointer-events: auto;
       z-index: 2;
     }
 
     .stage .ph[data-pos="2"] {
-      transform: translateX(260px) scale(0.85);
+      transform: translateX(var(--s2)) scale(0.85);
       opacity: 0.4;
       pointer-events: auto;
     }
@@ -252,71 +253,23 @@
       justify-content: center;
       gap: 12px;
       padding-bottom: 60px;
+      flex-wrap: wrap;
     }
 
-    .ctl button,
-    .pill {
+    .ctl button {
       padding: 10px 20px;
       border-radius: 999px;
-      background: var(--hd);
+      background: var(--gray);
+      color: #fff;
       font-size: 14px;
-      transition: background 0.2s, color 0.2s;
     }
 
     .ctl button:hover,
-    .pill:hover {
+    .ctl .red {
       background: var(--red);
-      color: #fff;
     }
 
-    .dark {
-      background: #000;
-      color: #fff;
-    }
-
-    .hero {
-      padding: 80px 16px 0;
-    }
-
-    .screen {
-      width: min(1074px, 100%);
-      aspect-ratio: 1074 / 566;
-      margin: 0 auto;
-      background: #ababab;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      color: #000;
-      cursor: pointer;
-      transition: all 0.4s;
-    }
-
-    .tabs {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 8px clamp(16px, 3.5vw, 48px);
-      padding: 36px 16px 60px;
-    }
-
-    .tabs button {
-      font-size: clamp(16px, 2.2vw, 30px);
-      color: #999;
-      padding: 6px 4px;
-      border-bottom: 2px solid transparent;
-    }
-
-    .tabs button:hover {
-      color: #ddd;
-    }
-
-    .tabs button.on {
-      color: #fff;
-      border-color: var(--red);
-    }
-
-    /* Grid Layouts */
+    /* Grids */
     .grid {
       max-width: 1100px;
       margin: 0 auto;
@@ -329,7 +282,6 @@
 
     .grid .ph {
       aspect-ratio: 108 / 152;
-      cursor: pointer;
       transition: transform 0.2s;
       font-size: 14px;
       border-radius: 8px;
@@ -337,6 +289,7 @@
 
     .grid .ph:hover {
       transform: translateY(-6px);
+      background: #333;
     }
 
     .grid .ph.big {
@@ -357,14 +310,15 @@
     .h {
       max-width: 1100px;
       margin: 0 auto;
-      padding: 40px 24px 0;
+      padding: 64px 24px 0;
       font-size: 22px;
       font-weight: 700;
     }
 
-    /* Theater View */
+    /* Theater Section */
     .th {
       background: #000;
+      color: #fff;
       min-height: calc(100vh - 64px);
       display: flex;
       flex-direction: column;
@@ -385,16 +339,19 @@
     }
 
     .th .screen {
-      cursor: default;
       width: var(--w, 50%);
       height: var(--h, 100%);
-      aspect-ratio: auto;
+      background: var(--gray);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 26px;
-      margin: 0;
       position: relative;
       z-index: 2;
       border: 3px solid #000;
-      transition: width 0.4s ease, height 0.4s ease;
+      outline: 1px solid #3a3a3a;
+      transition: width 0.4s, height 0.4s;
     }
 
     .wing {
@@ -402,7 +359,8 @@
       top: 50%;
       width: 18%;
       height: 90%;
-      background: #ababab;
+      background: var(--gray);
+      outline: 1px solid #3a3a3a;
       opacity: 0;
       transition: opacity 0.4s;
     }
@@ -431,7 +389,31 @@
       padding: 0 16px;
     }
 
-    /* Modal Overlay */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px clamp(16px, 3.5vw, 48px);
+      padding: 0 16px 60px;
+    }
+
+    .tabs button {
+      font-size: clamp(16px, 2.2vw, 30px);
+      color: #999;
+      padding: 6px 4px;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tabs button:hover {
+      color: #ddd;
+    }
+
+    .tabs button.on {
+      color: #fff;
+      border-color: var(--red);
+    }
+
+    /* Modal */
     .ov {
       position: fixed;
       inset: 0;
@@ -522,7 +504,8 @@
       width: 56px;
       height: 56px;
       border-radius: 50%;
-      background: var(--soft);
+      background: var(--gray);
+      color: #fff;
       font-size: 12px;
       display: flex;
       align-items: center;
@@ -531,9 +514,9 @@
     }
 
     button.circ:hover,
-    button.circ.on {
+    button.circ.on,
+    button.circ.go {
       background: var(--red);
-      color: #fff;
     }
 
     .body {
@@ -565,7 +548,7 @@
       left: 50%;
       bottom: calc(24px + env(safe-area-inset-bottom, 0px));
       transform: translate(-50%, 40px);
-      background: #222;
+      background: var(--gray);
       color: #fff;
       padding: 12px 20px;
       border-radius: 999px;
@@ -573,6 +556,7 @@
       transition: 0.3s;
       z-index: 60;
       pointer-events: none;
+      border: 1px solid #444;
     }
 
     .toast.on {
@@ -580,7 +564,300 @@
       transform: translate(-50%, 0);
     }
 
-    /* Mobile Responsive */
+    /* Booking System */
+    .bk {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 76px 24px 100px;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 32px;
+      align-items: start;
+    }
+
+    .bk.one {
+      grid-template-columns: 1fr;
+      max-width: 560px;
+    }
+
+    .steps {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 8px;
+    }
+
+    .steps div {
+      flex: 1;
+      padding: 10px 4px;
+      border-bottom: 3px solid var(--line);
+      font-size: 14px;
+      color: #888;
+    }
+
+    .steps div.on {
+      border-color: var(--red);
+      color: var(--fg);
+      font-weight: 700;
+    }
+
+    .steps div.done {
+      border-color: var(--gray);
+      color: var(--fg);
+    }
+
+    .bk h3 {
+      margin: 28px 0 12px;
+      font-size: 16px;
+    }
+
+    .bk h3:first-child {
+      margin-top: 0;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: var(--gray);
+      color: #fff;
+      font-size: 14px;
+    }
+
+    .chip:hover {
+      background: #3a3a3a;
+    }
+
+    .chip.on {
+      background: var(--red);
+    }
+
+    .shows {
+      display: grid;
+      gap: 8px;
+    }
+
+    .show {
+      display: grid;
+      grid-template-columns: 80px 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      text-align: left;
+    }
+
+    .show b {
+      font-size: 20px;
+    }
+
+    .show em {
+      font-style: normal;
+      color: #888;
+      font-size: 13px;
+    }
+
+    .show:hover {
+      border-color: var(--gray);
+    }
+
+    .show.on {
+      background: var(--gray);
+      color: #fff;
+      border-color: var(--red);
+    }
+
+    .show.on em {
+      color: #ccc;
+    }
+
+    .scr {
+      width: 70%;
+      margin: 0 auto 28px;
+      padding: 8px;
+      text-align: center;
+      font-size: 12px;
+      letter-spacing: 0.3em;
+      background: var(--gray);
+      color: #fff;
+      border-radius: 4px 4px 40px 40px / 4px 4px 14px 14px;
+    }
+
+    .row {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: 6px;
+      align-items: center;
+    }
+
+    .row i {
+      width: 18px;
+      font-style: normal;
+      font-size: 12px;
+      color: #888;
+    }
+
+    .seat {
+      width: clamp(20px, 5.5vw, 34px);
+      aspect-ratio: 1;
+      border-radius: 6px 6px 3px 3px;
+      background: var(--gray);
+      color: #fff;
+      font-size: 10px;
+    }
+
+    .seat:hover:not(:disabled) {
+      background: #555;
+    }
+
+    .seat.gap {
+      margin-right: 20px;
+    }
+
+    .seat.t {
+      opacity: 0.15;
+    }
+
+    .seat.on {
+      background: var(--red);
+    }
+
+    .legend {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: #888;
+    }
+
+    .legend span:before {
+      content: "";
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      margin-right: 6px;
+      vertical-align: -2px;
+      background: var(--gray);
+    }
+
+    .legend .a:before {
+      background: var(--red);
+    }
+
+    .legend .t:before {
+      opacity: 0.15;
+    }
+
+    .sum {
+      position: sticky;
+      top: 96px;
+      background: var(--gray);
+      color: #fff;
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .sum h4 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+
+    .sum p {
+      margin: 6px 0;
+      color: #ccc;
+      font-size: 14px;
+    }
+
+    .tot {
+      font-size: 26px;
+      font-weight: 700;
+      margin: 20px 0 16px;
+      color: #fff;
+    }
+
+    .cta {
+      width: 100%;
+      padding: 14px;
+      border-radius: 999px;
+      background: var(--red);
+      color: #fff;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .cta:disabled {
+      background: #555;
+      color: #999;
+    }
+
+    .tk {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      background: var(--card);
+    }
+
+    .tk .hd {
+      background: var(--red);
+      color: #fff;
+      padding: 20px 24px;
+    }
+
+    .tk .hd small {
+      opacity: 0.85;
+    }
+
+    .tk .hd h2 {
+      margin: 4px 0 0;
+      font-size: 24px;
+    }
+
+    .tk .bd {
+      padding: 20px 24px;
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 10px 8px;
+      font-size: 14px;
+    }
+
+    .tk .bd span {
+      color: #888;
+    }
+
+    .tk .bd.sep {
+      border-top: 2px dashed var(--line);
+    }
+
+    .empty {
+      text-align: center;
+      padding: 60px 0;
+      color: #888;
+    }
+
+    .pay {
+      display: grid;
+      gap: 8px;
+    }
+
+    /* Media Queries */
+    @media (max-width: 800px) {
+      .bk {
+        grid-template-columns: 1fr;
+      }
+      .sum {
+        position: static;
+      }
+    }
+
     @media (max-width: 700px) {
       header {
         padding: 0 12px;
@@ -591,6 +868,9 @@
       }
       .logo-img {
         height: 26px;
+      }
+      .btn-back {
+        left: 12px;
       }
       .top {
         flex-direction: column;
@@ -605,11 +885,14 @@
       .stage .ph[data-pos="2"] {
         opacity: 0;
       }
-      .stage .ph[data-pos="-1"] {
-        transform: translateX(-90px) scale(0.85);
+      .stage-track {
+        --s1: 130px;
       }
-      .stage .ph[data-pos="1"] {
-        transform: translateX(90px) scale(0.85);
+      .seat.gap {
+        margin-right: 10px;
+      }
+      .show {
+        grid-template-columns: 64px 1fr auto;
       }
     }
   </style>
@@ -617,24 +900,20 @@
 <body>
 
   <header>
-    <div class="header-left">
-      <!-- 뒤로가기 버튼 -->
-      <button class="btn-back hidden" id="btnBack" onclick="goBack()" aria-label="이전 페이지로">‹ 뒤로</button>
-      
-      <!-- 로고 (이미지 경로 src 속성에 적용 가능) -->
-      <button class="logo-btn" onclick="go('home')" aria-label="홈으로">
-        <img class="logo-img" src="logo.png" alt="CGV" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-        <span class="logo-fallback" style="display:none; font-size:22px; font-weight:700;">LOGO</span>
-      </button>
-    </div>
-
-    <!-- 네비게이션 (씨네톡 삭제 완료) -->
+    <button class="logo-btn" onclick="go('home')" aria-label="홈으로">
+      <img class="logo-img" src="logo.png" alt="CGV" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span style="display:none;font-size:22px;font-weight:700">LOGO</span>
+    </button>
     <nav>
       <button data-n="my">내 예매/예약</button>
       <button data-n="store">매점</button>
       <button data-n="profile">프로필</button>
     </nav>
   </header>
+
+  <div class="backbar">
+    <button class="btn-back hidden" id="btnBack" onclick="goBack()" aria-label="이전 페이지로">‹ 뒤로</button>
+  </div>
 
   <!-- 홈 페이지 -->
   <section class="page" id="home">
@@ -644,9 +923,10 @@
     <div class="ctl">
       <button onclick="rot(-1)" aria-label="이전">‹ 이전</button>
       <button onclick="go('movies')">전체 영화 보기</button>
+      <button class="red" onclick="startBooking(cur)">예매하기</button>
       <button onclick="rot(1)" aria-label="다음">다음 ›</button>
     </div>
-    <div class="th" id="thHome" style="min-height:0; padding:80px 0 64px"></div>
+    <div class="th" id="thHome" style="min-height:0;padding:80px 0 0"></div>
   </section>
 
   <!-- 영화 목록 페이지 -->
@@ -655,7 +935,7 @@
     <div class="grid feat" id="mg"></div>
   </section>
 
-  <!-- 특별관 정보 페이지 -->
+  <!-- 특별관 페이지 -->
   <section class="page" id="theater">
     <div class="th" id="thPage"></div>
   </section>
@@ -666,6 +946,16 @@
     <div class="grid" id="sg" style="padding-top:24px"></div>
   </section>
 
+  <!-- 예매 진행 페이지 -->
+  <section class="page" id="booking">
+    <div class="bk" id="bk"></div>
+  </section>
+
+  <!-- 내 예매/예약 목록 페이지 -->
+  <section class="page" id="my">
+    <div class="bk one" id="myList"></div>
+  </section>
+
   <!-- 모달 & 토스트 -->
   <div class="ov" id="ov">
     <div class="modal" id="md" role="dialog" aria-modal="true"></div>
@@ -673,7 +963,7 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    /* Data Settings */
+    /* Data Declarations */
     const movies = [
       "파이널 컷", "밤의 항로", "서울 1999", "바다가 닿는 곳", "별을 세는 사람",
       "마지막 상영관", "여름의 끝", "비밀 정원", "도시의 빛", "첫눈",
@@ -702,62 +992,18 @@
       IMAX: ["IMAX", "더 크고 높은 화면비로 장면 가득 몰입", { w: "62%", h: "100%" }],
       SCREENX: ["SCREENX", "정면과 좌우 벽면까지 이어지는 270° 화면", { w: "60%", h: "85%" }],
       "4DX": ["4DX", "움직이는 좌석과 바람·향기 효과", { w: "90%", h: "100%" }],
-      "Dolby Atmos": ["Dolby Atmos", "머리 위까지 움직이는 입체 사운드", { w: "60%", h: "100%" }],
-      SOUNDX: ["SOUNDX", "공간 전체를 채우는 사운드 시스템", { w: "60%", h: "100%" }],
-      PRESTIGE: ["PRESTIGE", "프리미엄 좌석과 라운지 서비스", { w: "70%", h: "100%" }]
+      "Dolby Atmos": ["Dolby Atmos", "머리 위까지 움직이는 입체 사운드", { w: "60%", h: "100%" }]
     };
 
+    const TABS = Object.keys(fmts);
     const $ = s => document.querySelector(s);
-    let cur = 2;
-    let fmt = "IMAX";
+    let cur = 2, fmt = "IMAX", tt;
 
-    /* Routing & History Back Support */
+    /* Helper Utilities */
     function go(p) {
       location.hash = p;
     }
 
-    function goBack() {
-      if (history.length > 1) {
-        history.back();
-      } else {
-        go('home');
-      }
-    }
-
-    function route() {
-      let p = location.hash.slice(1);
-      if (!["home", "movies", "theater", "store"].includes(p)) p = "home";
-
-      document.querySelectorAll(".page").forEach(e => e.classList.toggle("on", e.id === p));
-      document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.n === p));
-      
-      // 홈 화면이 아닐 경우 뒤로가기 버튼 표시
-      const btnBack = $("#btnBack");
-      if (p === "home") {
-        btnBack.classList.add("hidden");
-      } else {
-        btnBack.classList.remove("hidden");
-      }
-
-      closeM();
-      scrollTo(0, 0);
-    }
-
-    addEventListener("hashchange", route);
-
-    document.querySelectorAll("nav button").forEach(b => {
-      b.onclick = () => {
-        const n = b.dataset.n;
-        if (n === "store") go("store");
-        else toast({
-          my: "내 예매/예약 내역은 로그인 후 확인할 수 있어요",
-          profile: "프로필은 로그인 후 확인할 수 있어요"
-        }[n]);
-      };
-    });
-
-    /* Toast Notification Utility */
-    let tt;
     function toast(m) {
       const t = $("#toast");
       t.textContent = m;
@@ -766,46 +1012,76 @@
       tt = setTimeout(() => t.classList.remove("on"), 2200);
     }
 
-    /* Smooth Carousel Stage Initialization & Update */
-    function initStage() {
-      const track = $("#stageTrack");
-      track.innerHTML = "";
+    const PAGES = ["home", "movies", "theater", "store", "booking", "my"];
+    const page = () => {
+      const p = location.hash.slice(1);
+      return PAGES.includes(p) ? p : "home";
+    };
+
+    /* Routing */
+    function route() {
+      const p = page();
+      document.querySelectorAll(".page").forEach(e => e.classList.toggle("on", e.id === p));
+      document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.n === p));
+      $("#btnBack").classList.toggle("hidden", p === "home");
       
-      // 모든 카드 엘리먼트를 생성 후 위치 업데이트
-      movies.forEach((m, idx) => {
+      closeM();
+      scrollTo(0, 0);
+
+      if (p === "booking") renderBooking();
+      if (p === "my") renderMy();
+    }
+
+    function goBack() {
+      if (page() === "booking" && B.step > 1 && B.step < 4) {
+        B.step--;
+        renderBooking();
+        scrollTo(0, 0);
+      } else if (page() === "booking" && B.step === 4) {
+        go("home");
+      } else if (history.length > 1) {
+        history.back();
+      } else {
+        go("home");
+      }
+    }
+
+    addEventListener("hashchange", route);
+
+    document.querySelectorAll("nav button").forEach(b => {
+      b.onclick = () => {
+        const n = b.dataset.n;
+        if (n === "store" || n === "my") go(n);
+        else toast("프로필은 로그인 후 확인할 수 있어요");
+      };
+    });
+
+    /* Carousel Logic */
+    function initStage() {
+      const tr = $("#stageTrack");
+      tr.innerHTML = "";
+      movies.forEach((m, i) => {
         const b = document.createElement("button");
         b.className = "ph";
         b.textContent = m.t;
         b.setAttribute("aria-label", m.t);
-        b.dataset.id = idx;
-        track.appendChild(b);
+        b.dataset.id = i;
+        tr.appendChild(b);
       });
       updateStage();
     }
 
     function updateStage() {
-      const track = $("#stageTrack");
-      const cards = track.querySelectorAll(".ph");
-      
-      cards.forEach((card) => {
-        const idx = parseInt(card.dataset.id, 10);
-        let diff = idx - cur;
-        
-        // Circular index calculation
-        if (diff < -Math.floor(movies.length / 2)) diff += movies.length;
-        if (diff > Math.floor(movies.length / 2)) diff -= movies.length;
-        
-        card.setAttribute("data-pos", diff);
-        
-        const m = movies[idx];
-        card.onclick = () => {
-          if (diff === 0) {
-            openM(m, "영화");
-          } else {
-            cur = idx;
-            updateStage();
-          }
-        };
+      document.querySelectorAll("#stageTrack .ph").forEach(c => {
+        const i = +c.dataset.id;
+        let d = i - cur;
+        let h = Math.floor(movies.length / 2);
+
+        if (d < -h) d += movies.length;
+        if (d > h) d -= movies.length;
+
+        c.dataset.pos = d;
+        c.onclick = () => d === 0 ? openM(movies[i], "영화") : (cur = i, updateStage());
       });
     }
 
@@ -816,15 +1092,13 @@
 
     addEventListener("keydown", e => {
       if (e.key === "Escape") closeM();
-      if ($("#home").classList.contains("on") && !$("#ov").classList.contains("on")) {
+      if (page() === "home" && !$("#ov").classList.contains("on")) {
         if (e.key === "ArrowLeft") rot(-1);
         if (e.key === "ArrowRight") rot(1);
       }
     });
 
-    /* Format Tabs Component */
-    const TABS = ["laser", "IMAX", "SCREENX", "4DX", "Dolby Atmos"];
-
+    /* Theater Mounts */
     function mounts() {
       document.querySelectorAll(".th").forEach(el => {
         const home = el.id === "thHome";
@@ -835,9 +1109,8 @@
             <div class="wing r"></div>
           </div>
           <div class="desc"></div>
-          <div class="tabs" style="padding:0 16px"></div>
+          <div class="tabs"></div>
         `;
-        
         const sc = el.querySelector(".screen");
         const t = el.querySelector(".tabs");
 
@@ -871,28 +1144,15 @@
       });
     }
 
-    /* Render Grid Lists */
-    function drawMovies() {
-      const g = $("#mg");
-      g.innerHTML = "";
-      movies.forEach((m, i) => {
+    /* Grids */
+    function drawGrid(el, list, label) {
+      el.innerHTML = "";
+      list.forEach((m, i) => {
         const b = document.createElement("button");
-        b.className = "ph" + (i === 2 ? " big" : "");
+        b.className = "ph" + (label === "영화" && i === 2 ? " big" : "");
         b.textContent = m.t;
-        b.onclick = () => openM(m, "영화");
-        g.appendChild(b);
-      });
-    }
-
-    function drawStore() {
-      const g = $("#sg");
-      g.innerHTML = "";
-      items.forEach(m => {
-        const b = document.createElement("button");
-        b.className = "ph";
-        b.textContent = m.t;
-        b.onclick = () => openM(m, "매점");
-        g.appendChild(b);
+        b.onclick = () => openM(m, label);
+        el.appendChild(b);
       });
     }
 
@@ -909,7 +1169,7 @@
             <h2>${m.t}</h2>
             <p>${m.sub}</p>
             <div class="acts">
-              ${acts.map(a => `<button class="circ" data-a="${a}">${a}</button>`).join("")}
+              ${acts.map(a => `<button class="circ${a === "예매" ? " go" : ""}" data-a="${a}">${a}</button>`).join("")}
             </div>
           </div>
         </div>
@@ -922,11 +1182,13 @@
       $("#md").querySelectorAll("[data-a]").forEach(b => {
         b.onclick = () => {
           const a = b.dataset.a;
-          if (a === "찜") {
+          if (a === "예매") {
+            startBooking(m.id);
+          } else if (a === "찜") {
             b.classList.toggle("on");
             toast(b.classList.contains("on") ? "찜했어요" : "찜을 취소했어요");
-          } else if (a === "예매" || a === "주문" || a === "담기") {
-            toast(`${m.t} ${a === "예매" ? "예매를 시작해요" : a === "주문" ? "주문을 시작해요" : "장바구니에 담았어요"}`);
+          } else if (a === "주문" || a === "담기") {
+            toast(`${m.t} ${a === "주문" ? "주문을 시작해요" : "장바구니에 담았어요"}`);
           } else if (a === "공유") {
             toast("링크를 복사했어요");
           } else {
@@ -936,7 +1198,7 @@
       });
 
       $("#ov").classList.add("on");
-      $("#md").querySelector(".x").focus();
+      $("#md .x").focus();
     }
 
     function closeM() {
@@ -947,10 +1209,220 @@
       if (e.target.id === "ov") closeM();
     };
 
+    /* Virtual Booking Module */
+    const B = { step: 1, movie: 2, day: 0, show: null, seats: [], pay: "신용/체크카드" };
+    let MY = [];
+
+    try {
+      MY = JSON.parse(localStorage.getItem("cgvMy") || "[]");
+    } catch (e) {}
+
+    const days = [...Array(7)].map((_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      return {
+        l: `${d.getMonth() + 1}/${d.getDate()}`,
+        w: "일월화수목금토"[d.getDay()]
+      };
+    });
+
+    const TIMES = ["10:20", "13:05", "16:10", "19:30", "22:10"];
+    const SURCH = { laser: 2000, IMAX: 4000, SCREENX: 3000, "4DX": 5000, "Dolby Atmos": 3000 };
+    const ROWS = "ABCDEFGH", COLS = 12;
+
+    const won = n => n.toLocaleString() + "원";
+    const shows = () => TIMES.map((t, n) => ({ t, n, hall: TABS[(n + B.day) % 5] }));
+
+    const isTaken = (s, r, c) => ((r + 1) * 7 + (c + 1) * 13 + B.day * 3 + s.n * 5 + B.movie) % 5 === 0;
+
+    const left = s => {
+      let k = 0;
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (!isTaken(s, r, c)) k++;
+        }
+      }
+      return k;
+    };
+
+    function startBooking(i) {
+      Object.assign(B, { step: 1, movie: i, day: 0, show: null, seats: [] });
+      closeM();
+      if (page() === "booking") renderBooking();
+      else go("booking");
+    }
+
+    function pick(k, v) {
+      if (k === "movie") { B.movie = v; B.show = null; B.seats = []; }
+      if (k === "day") { B.day = v; B.show = null; B.seats = []; }
+      if (k === "show") { B.show = shows()[v]; B.seats = []; }
+      if (k === "pay") B.pay = v;
+      renderBooking();
+    }
+
+    function seat(id) {
+      const i = B.seats.indexOf(id);
+      if (i >= 0) {
+        B.seats.splice(i, 1);
+      } else if (B.seats.length >= 4) {
+        return toast("최대 4석까지 선택할 수 있어요");
+      } else {
+        B.seats.push(id);
+      }
+      renderBooking();
+    }
+
+    function next() {
+      if (B.step < 3) {
+        B.step++;
+        renderBooking();
+        scrollTo(0, 0);
+        return;
+      }
+      const m = movies[B.movie];
+      const price = 14000 + SURCH[B.show.hall];
+
+      B.done = {
+        no: "CGV" + String(Date.now()).slice(-8),
+        movie: m.t,
+        date: `${days[B.day].l} (${days[B.day].w})`,
+        time: B.show.t,
+        hall: B.show.hall,
+        seats: [...B.seats].sort(),
+        total: price * B.seats.length,
+        pay: B.pay
+      };
+
+      MY.unshift(B.done);
+      try {
+        localStorage.setItem("cgvMy", JSON.stringify(MY));
+      } catch (e) {}
+
+      B.step = 4;
+      renderBooking();
+      scrollTo(0, 0);
+    }
+
+    const ticket = t => `
+      <div class="tk">
+        <div class="hd">
+          <small>${t.date} ${t.time}</small>
+          <h2>${t.movie}</h2>
+        </div>
+        <div class="bd">
+          <span>상영관</span><b>${t.hall}관</b>
+          <span>좌석</span><b>${t.seats.join(", ")}</b>
+          <span>결제금액</span><b>${won(t.total)}</b>
+        </div>
+        <div class="bd sep">
+          <span>예매번호</span><b>${t.no}</b>
+          <span>결제수단</span><b>${t.pay}</b>
+        </div>
+      </div>
+    `;
+
+    function renderBooking() {
+      const el = $("#bk");
+      const m = movies[B.movie];
+      const s = B.show;
+      const price = s ? 14000 + SURCH[s.hall] : 0;
+      const total = price * B.seats.length;
+
+      const steps = ["영화·시간", "좌석", "결제", "완료"]
+        .map((x, i) => `<div class="${B.step === i + 1 ? "on" : i + 1 < B.step ? "done" : ""}">${i + 1}. ${x}</div>`)
+        .join("");
+
+      el.classList.toggle("one", B.step === 4);
+
+      if (B.step === 4) {
+        el.innerHTML = `
+          <div class="steps">${steps}</div>
+          <div>
+            <h2 style="margin:0 0 6px">예매가 완료됐어요 🎬</h2>
+            <p style="color:#888;margin:0 0 20px">가상 예매입니다. 실제 결제는 이루어지지 않아요.</p>
+            ${ticket(B.done)}
+            <div class="ctl" style="padding:20px 0 0">
+              <button onclick="go('my')">내 예매 보기</button>
+              <button class="red" onclick="go('home')">홈으로</button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      let main = "";
+
+      if (B.step === 1) {
+        main = `
+          <h3>영화</h3>
+          <div class="chips">${movies.map((x, i) => `<button class="chip${i === B.movie ? " on" : ""}" onclick="pick('movie',${i})">${x.t}</button>`).join("")}</div>
+          <h3>날짜</h3>
+          <div class="chips">${days.map((x, i) => `<button class="chip${i === B.day ? " on" : ""}" onclick="pick('day',${i})">${x.l} (${x.w})</button>`).join("")}</div>
+          <h3>상영 시간</h3>
+          <div class="shows">${shows().map(x => `<button class="show${s && s.n === x.n ? " on" : ""}" onclick="pick('show',${x.n})"><b>${x.t}</b><span>${x.hall}관</span><em>잔여 ${left(x)}석</em></button>`).join("")}</div>
+        `;
+      } else if (B.step === 2) {
+        let rows = "";
+        for (let r = 0; r < 8; r++) {
+          rows += `<div class="row"><i>${ROWS[r]}</i>`;
+          for (let c = 0; c < COLS; c++) {
+            const id = ROWS[r] + (c + 1);
+            const t = isTaken(s, r, c);
+            rows += `<button class="seat${t ? " t" : ""}${B.seats.includes(id) ? " on" : ""}${c === 5 ? " gap" : ""}" ${t ? "disabled" : ""} aria-label="${id}" onclick="seat('${id}')">${c + 1}</button>`;
+          }
+          rows += "</div>";
+        }
+        main = `
+          <h3>좌석 선택 <small style="color:#888;font-weight:400">(최대 4석)</small></h3>
+          <div class="scr">SCREEN</div>
+          ${rows}
+          <div class="legend"><span>선택 가능</span><span class="a">선택됨</span><span class="t">예매 완료</span></div>
+        `;
+      } else {
+        main = `
+          <h3>결제 수단</h3>
+          <div class="chips">${["신용/체크카드", "카카오페이", "네이버페이", "휴대폰 결제"].map(x => `<button class="chip${B.pay === x ? " on" : ""}" onclick="pick('pay','${x}')">${x}</button>`).join("")}</div>
+          <h3>결제 내역</h3>
+          <div class="tk">
+            <div class="bd">
+              <span>일반 요금</span><b>${won(14000)} × ${B.seats.length}</b>
+              <span>${s.hall}관 추가</span><b>${won(SURCH[s.hall])} × ${B.seats.length}</b>
+              <span>총 결제금액</span><b style="color:var(--red)">${won(total)}</b>
+            </div>
+          </div>
+        `;
+      }
+
+      const ok = B.step === 1 ? !!s : B.seats.length > 0;
+
+      el.innerHTML = `
+        <div class="steps">${steps}</div>
+        <div>${main}</div>
+        <aside class="sum">
+          <h4>${m.t}</h4>
+          <p>${days[B.day].l} (${days[B.day].w}) ${s ? s.t + " · " + s.hall + "관" : "시간을 선택해 주세요"}</p>
+          <p>좌석 ${B.seats.length ? [...B.seats].sort().join(", ") : "-"}</p>
+          <div class="tot">${won(total)}</div>
+          <button class="cta" ${ok ? "" : "disabled"} onclick="next()">
+            ${B.step === 3 ? won(total) + " 결제하기" : ["좌석 선택하기", "결제 단계로"][B.step - 1]}
+          </button>
+        </aside>
+      `;
+    }
+
+    function renderMy() {
+      $("#myList").innerHTML = `
+        <div class="steps"><div class="on">내 예매/예약</div></div>
+        <div>
+          ${MY.length ? MY.map(ticket).join("") : `<div class="empty">아직 예매 내역이 없어요.<div class="ctl" style="padding:20px 0 0"><button class="red" onclick="startBooking(cur)">예매하러 가기</button></div></div>`}
+        </div>
+      `;
+    }
+
     /* App Initialization */
     initStage();
-    drawMovies();
-    drawStore();
+    drawGrid($("#mg"), movies, "영화");
+    drawGrid($("#sg"), items, "매점");
     mounts();
     showT(fmt);
     route();
