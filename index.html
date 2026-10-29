@@ -17,7 +17,7 @@
       --dim: rgba(0, 0, 0, 0.6);
       --red: #FF0001;
       box-sizing: border-box;
-      padding-top: env(safe-area-inset-top, 0px); 
+      padding-top: env(safe-area-inset-top, 0px);
       padding-bottom: env(safe-area-inset-bottom, 0px);
     }
 
@@ -80,11 +80,13 @@
       cursor: not-allowed;
     }
 
-    /* Header & Navigation */
+    /* Fixed Header & Top Navigation */
     header {
-      position: sticky;
+      position: fixed;
       top: env(safe-area-inset-top, 0px);
-      z-index: 20;
+      left: 0;
+      right: 0;
+      z-index: 30;
       height: 64px;
       background: var(--hd);
       color: #fff;
@@ -92,6 +94,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 24px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
 
     .logo-btn {
@@ -125,12 +128,14 @@
       color: var(--red);
     }
 
-    /* Top Back Bar */
+    /* Sticky Back Bar */
     .backbar {
-      position: sticky;
+      position: fixed;
       top: calc(env(safe-area-inset-top, 0px) + 64px);
+      left: 0;
+      right: 0;
       height: 0;
-      z-index: 15;
+      z-index: 25;
     }
 
     .btn-back {
@@ -151,10 +156,12 @@
     }
 
     .hidden {
-      display: none;
+      display: none !important;
     }
 
+    /* Common Poster Placeholder & Image Holder */
     .ph {
+      position: relative;
       background: var(--ph);
       display: flex;
       align-items: center;
@@ -163,15 +170,64 @@
       font-weight: 500;
       color: #fff;
       padding: 8px;
+      overflow: hidden;
     }
 
+    .ph img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* 마우스 호버 시에만 텍스트 및 어두운 배경 오버레이 표시 */
+    .ph::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 1;
+    }
+
+    .ph span.label {
+      position: relative;
+      z-index: 2;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      padding: 0 4px;
+    }
+
+    .ph:hover::after,
+    .ph:hover span.label {
+      opacity: 1;
+    }
+
+    /* Smooth Page Fade-In Transition (0.5s) */
     section.page {
       display: none;
       min-height: calc(100vh - 64px);
+      padding-top: 64px;
     }
 
     section.page.on {
       display: block;
+      animation: pageFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes pageFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* Carousel Stage */
@@ -269,6 +325,176 @@
       background: var(--red);
     }
 
+    /* Curation Section Layout */
+    .curation-sec {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    .curation-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .curation-head h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .curation-head .more-btn {
+      font-size: 14px;
+      color: #888;
+    }
+
+    .curation-head .more-btn:hover {
+      color: var(--red);
+    }
+
+    .curation-body {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 36px;
+      align-items: start;
+    }
+
+    .curation-left {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .curation-left .poster-box {
+      width: 100%;
+      aspect-ratio: 256 / 362;
+      border-radius: 12px;
+      position: relative;
+    }
+
+    .badge-tag {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: var(--red);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 4px;
+      z-index: 3;
+    }
+
+    .curation-left .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .curation-left .actions button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--fg);
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .curation-left .actions button:hover {
+      background: rgba(128, 128, 128, 0.15);
+    }
+
+    .curation-left .actions button.btn-book {
+      background: var(--red);
+      color: #fff;
+      border: none;
+    }
+
+    .curation-left .actions button.btn-book:hover {
+      opacity: 0.9;
+    }
+
+    .curation-right {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .curation-info {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+      min-height: 180px;
+    }
+
+    .curation-info .tag-title {
+      font-size: 14px;
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    .curation-info h3 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .curation-info .sub-text {
+      font-size: 14px;
+      color: #888;
+    }
+
+    .curation-info .desc-text {
+      font-size: 15px;
+      color: var(--fg);
+      line-height: 1.75;
+      margin: 6px 0 0;
+      white-space: pre-line;
+    }
+
+    .curation-sub-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .curation-sub-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .curation-sub-card .poster-box {
+      aspect-ratio: 108 / 152;
+      border-radius: 8px;
+      transition: transform 0.2s, box-shadow 0.2s, outline 0.2s;
+    }
+
+    .curation-sub-card:hover .poster-box {
+      transform: translateY(-4px);
+    }
+
+    .curation-sub-card.on .poster-box {
+      outline: 3px solid var(--red);
+      outline-offset: 2px;
+    }
+
+    .curation-sub-card .title {
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     /* Grids */
     .grid {
       max-width: 1100px;
@@ -289,7 +515,6 @@
 
     .grid .ph:hover {
       transform: translateY(-6px);
-      background: #333;
     }
 
     .grid .ph.big {
@@ -339,6 +564,7 @@
     }
 
     .th .screen {
+      position: relative;
       width: var(--w, 50%);
       height: var(--h, 100%);
       background: var(--gray);
@@ -347,11 +573,27 @@
       align-items: center;
       justify-content: center;
       font-size: 26px;
-      position: relative;
       z-index: 2;
       border: 3px solid #000;
       outline: 1px solid #3a3a3a;
       transition: width 0.4s, height 0.4s;
+      overflow: hidden;
+    }
+
+    .th .screen img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.65;
+    }
+
+    .th .screen span {
+      position: relative;
+      z-index: 3;
+      font-weight: 700;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
     }
 
     .wing {
@@ -363,6 +605,14 @@
       outline: 1px solid #3a3a3a;
       opacity: 0;
       transition: opacity 0.4s;
+      overflow: hidden;
+    }
+
+    .wing img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.4;
     }
 
     .wing.l {
@@ -843,12 +1093,16 @@
       color: #888;
     }
 
-    .pay {
-      display: grid;
-      gap: 8px;
+    /* Media Queries */
+    @media (max-width: 850px) {
+      .curation-body {
+        grid-template-columns: 1fr;
+      }
+      .curation-sub-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
-    /* Media Queries */
     @media (max-width: 800px) {
       .bk {
         grid-template-columns: 1fr;
@@ -899,9 +1153,10 @@
 </head>
 <body>
 
+  <!-- Fixed Header -->
   <header>
     <button class="logo-btn" onclick="go('home')" aria-label="홈으로">
-      <img class="logo-img" src="logo.png" alt="CGV" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <img class="logo-img" src="img/logo.svg" alt="CGV" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
       <span style="display:none;font-size:22px;font-weight:700">LOGO</span>
     </button>
     <nav>
@@ -917,6 +1172,7 @@
 
   <!-- 홈 페이지 -->
   <section class="page" id="home">
+    <!-- 1. 메인 캐러셀 -->
     <div class="stage">
       <div class="stage-track" id="stageTrack"></div>
     </div>
@@ -926,6 +1182,17 @@
       <button class="red" onclick="startBooking(cur)">예매하기</button>
       <button onclick="rot(1)" aria-label="다음">다음 ›</button>
     </div>
+
+    <!-- 2. 큐레이션 섹션 -->
+    <div class="curation-sec">
+      <div class="curation-head">
+        <h2>큐레이션</h2>
+        <button class="more-btn" onclick="go('movies')">큐레이션 더보기 +</button>
+      </div>
+      <div class="curation-body" id="curationBody"></div>
+    </div>
+
+    <!-- 3. 특별관 소개 섹션 -->
     <div class="th" id="thHome" style="min-height:0;padding:80px 0 0"></div>
   </section>
 
@@ -963,41 +1230,60 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    /* Data Declarations */
+    /* Data Declarations (img/ 폴더의 실개 파일명 연동) */
     const movies = [
-      "파이널 컷", "밤의 항로", "서울 1999", "바다가 닿는 곳", "별을 세는 사람",
-      "마지막 상영관", "여름의 끝", "비밀 정원", "도시의 빛", "첫눈",
-      "검은 파도", "소란한 하루", "오후 세 시", "낯선 이웃", "종이 달"
-    ].map((t, i) => ({
-      id: i,
-      t,
-      sub: ["드라마 · 118분", "스릴러 · 104분", "범죄 · 126분", "로맨스 · 112분", "SF · 135분"][i % 5],
-      d: "예고편에서 다 보여주지 않은 이야기. 극장에서 가장 잘 보이도록 만든 작품으로, 줄거리 소개 영역에 들어갈 샘플 텍스트입니다. 실제 서비스에서는 시놉시스가 여기에 표시됩니다."
-    }));
+      { id: 0, t: "룩백", poster: "img/lookback.jpg", sub: "애니메이션 · 58분", d: "학교 신문에서 네컷 만화를 그리는 자신만만한 소녀 '후지노'와 방 안에 틀어박힌 외톨이 '쿄모토'. 만화가 세상의 전부였던 시절, 두 소녀의 눈부신 사계절이 채워지기 시작한다." },
+      { id: 1, t: "최종면접", poster: "img/Final Interview.jpg", sub: "스릴러 · 104분", d: "대기업 입사를 위한 마지막 단계, 밀실에서 펼쳐지는 기이하고 섬뜩한 최종 면접. 합격을 위해 서로를 배신하며 밝혀지는 서늘한 진실." },
+      { id: 2, t: "오디세이", poster: "img/The Odyssey.jpg", sub: "SF · 135분", d: "미지의 위성으로 떠나는 사상 최대의 우주 탐사 프로젝트. 신비로운 항로 끝에 기다리고 있는 인류의 원초적 기원과 절망." },
+      { id: 3, t: "Heart of the Beast", poster: "img/Heart of the Beast.jpg", sub: "액션 · 112분", d: "야수의 심장을 가진 자들의 격렬한 사투. 거대한 음모 속에서 생존하기 위한 주인공의 처절한 반격이 시작된다." },
+      { id: 4, t: "디거", poster: "img/Digger.jpg", sub: "범죄 · 126분", d: "땅속 깊은 곳에 숨겨진 보물을 파헤치는 미스터리 탐사원들. 그들이 발굴한 것은 상상을 초월하는 위험한 유물이었다." },
+      { id: 5, t: "치이카와", poster: "img/Chiikawa.jpg", sub: "애니메이션 · 85분", d: "작고 귀여운 치이카와와 친구들의 파란만장한 일상 대모험! 귀여움 뒤에 숨겨진 험난한 노동과 감동의 순간들." },
+      { id: 6, t: "집착", poster: "img/Obsession.jpg", sub: "미스터리 · 110분", d: "벗어날 수 없는 굴레와 빗나간 집착. 어둠 속에서 서서히 다가오는 기괴한 그림자의 정체는 무엇인가." },
+      { id: 7, t: "인턴", poster: "img/Intern.jpg", sub: "드라마 · 121분", d: "창업 1년 만에 성공을 거둔 패션 스타트업에 70세 시니어 인턴이 출근하면서 일어나는 가슴 따뜻한 성장 드라마." },
+      { id: 8, t: "부활남", poster: "img/red.jpg", sub: "액션 · 115분", d: "죽으면 3일 만에 부활하는 능력을 가진 청년. 거대한 악당 조직에 맞서 싸우는 통쾌하고 화려한 웹툰 원작 액션." },
+      { id: 9, t: "브루넬로", poster: "img/be.jpg", sub: "드라마 · 108분", d: "우아한 선구자의 미학과 철학. 예술과 삶의 경계에서 펼쳐지는 아름답고 깊이 있는 휴먼 스토리." },
+      { id: 10, t: "요루시카", poster: "img/yorushika.jpg", sub: "공연실황 · 95분", d: "감성적인 음악과 환상적인 그래픽 연출이 어우러진 특설 라이브 콘서트 실황 극장판." },
+      { id: 11, t: "HOPE", poster: "img/HOPE.jpg", sub: "드라마 · 118분", d: "절망의 끝에서 발견한 작은 희망의 빛. 서로의 아픔을 보듬어주며 다시 일어서는 가족의 이야기." },
+      { id: 12, t: "라라랜드", poster: "img/LA LA LAND.jpg", sub: "로맨스 · 127분", d: "꿈을 쫓는 청춘들의 열정과 사랑. 재즈 피아니스트 세바스찬과 배우 지망생 미아가 그려내는 아름다운 사계절." }
+    ];
 
     const cast = ["배우 A", "배우 B", "배우 C", "감독"];
 
+    /* 매점 품목 10개 및 img/ 폴더 내 연동 이미지 설정 */
     const items = [
-      "팝콘 L", "콤보 A", "콤보 B", "나초", "오징어", "핫도그", "콜라", "탄산 M",
-      "아이스티", "커피", "츄러스", "젤리", "초코볼", "물", "에이드", "스낵 세트",
-      "키즈 세트", "굿즈 컵", "스페셜 팩", "기프티콘"
-    ].map((t, i) => ({
-      t,
-      sub: (3000 + i * 700).toLocaleString() + "원",
-      d: "극장 매점 인기 메뉴입니다. 상영관 입장 전에 미리 주문하고 픽업하세요. 샘플 설명 영역입니다."
-    }));
+      { t: "더블 세트", poster: "img/Dubleset.png", sub: "13,000원", d: "팝콘 2 + 음료 2 구성의 대표 콤보 세트입니다." },
+      { t: "싱글 세트", poster: "img/Sset.png", sub: "8,500원", d: "혼자서 즐기기 좋은 팝콘 1 + 음료 1 세트입니다." },
+      { t: "라지 세트", poster: "img/largeset.png", sub: "15,000원", d: "풍성한 푸드 스낵과 음료가 포함된 넉넉한 세트입니다." },
+      { t: "맥주 세트", poster: "img/beerset.png", sub: "12,000원", d: "시원한 맥주와 어울리는 스낵 콤보 세트입니다." },
+      { t: "오징어 튀김", poster: "img/calamari.png", sub: "6,500원", d: "바삭하고 짭조름한 극장 인기 핑거푸드 오징어 튀김입니다." },
+      { t: "핫도그", poster: "img/hotdog.png", sub: "5,000원", d: "육즙 가득한 소시지가 들어간 갓 구운 핫도그입니다." },
+      { t: "나초", poster: "img/nacho.png", sub: "5,000원", d: "고소한 나초 칩과 치즈 소스의 환상적인 조합입니다." },
+      { t: "레몬 에이드", poster: "img/lemon.png", sub: "4,500원", d: "상큼하고 청량한 시트러스 레몬 에이드입니다." },
+      { t: "생맥주", poster: "img/beer.png", sub: "6,000원", d: "영화와 함께 즐기는 시원한 프리미엄 생맥주입니다." },
+      { t: "콜라 컵", poster: "img/cup.png", sub: "3,000원", d: "톡 쏘는 청량함의 대표 탄산음료입니다." }
+    ];
 
+    /* Special Cinema Data */
     const fmts = {
-      laser: ["laser", "선명한 레이저 영사로 더 깊은 검정과 밝은 화면", { w: "50%", h: "100%" }],
-      IMAX: ["IMAX", "더 크고 높은 화면비로 장면 가득 몰입", { w: "62%", h: "100%" }],
-      SCREENX: ["SCREENX", "정면과 좌우 벽면까지 이어지는 270° 화면", { w: "60%", h: "85%" }],
-      "4DX": ["4DX", "움직이는 좌석과 바람·향기 효과", { w: "90%", h: "100%" }],
-      "Dolby Atmos": ["Dolby Atmos", "머리 위까지 움직이는 입체 사운드", { w: "60%", h: "100%" }]
+      laser: ["laser", "선명한 레이저 영사로 더 깊은 검정과 밝은 화면", { w: "50%", h: "100%" }, "img/lookback.jpg"],
+      IMAX: ["IMAX", "더 크고 높은 화면비로 장면 가득 몰입", { w: "62%", h: "100%" }, "img/The Odyssey.jpg"],
+      SCREENX: ["SCREENX", "정면과 좌우 벽면까지 이어지는 270° 화면", { w: "60%", h: "85%" }, "img/LA LA LAND.jpg"],
+      "4DX": ["4DX", "움직이는 좌석과 바람·향기 효과", { w: "90%", h: "100%" }, "img/red.jpg"],
+      "Dolby Atmos": ["Dolby Atmos", "머리 위까지 움직이는 입체 사운드", { w: "60%", h: "100%" }, "img/yorushika.jpg"]
     };
 
     const TABS = Object.keys(fmts);
     const $ = s => document.querySelector(s);
     let cur = 2, fmt = "IMAX", tt;
+    let curationCurId = 0; // 큐레이션 영역에서 현재 선택된 영화 index
+
+    /* Image HTML Generator */
+    function renderPosterHtml(posterUrl, titleText) {
+      return `
+        <img src="${posterUrl}" alt="${titleText}" onerror="this.style.display='none'">
+        <span class="label">${titleText}</span>
+      `;
+    }
 
     /* Helper Utilities */
     function go(p) {
@@ -1063,7 +1349,7 @@
       movies.forEach((m, i) => {
         const b = document.createElement("button");
         b.className = "ph";
-        b.textContent = m.t;
+        b.innerHTML = renderPosterHtml(m.poster, m.t);
         b.setAttribute("aria-label", m.t);
         b.dataset.id = i;
         tr.appendChild(b);
@@ -1098,15 +1384,65 @@
       }
     });
 
+    /* Curation Section Logic */
+    function drawCuration() {
+      const el = $("#curationBody");
+      if (!el) return;
+
+      const feat = movies[curationCurId];
+      const subList = movies.slice(0, 5); // 큐레이션 리스트 (상위 5개)
+
+      el.innerHTML = `
+        <div class="curation-left">
+          <div class="poster-box ph">
+            <div class="badge-tag">CGV SPECIAL</div>
+            ${renderPosterHtml(feat.poster, feat.t)}
+          </div>
+          <div class="actions">
+            <button onclick="openM(movies[${feat.id}], '영화')">상세정보</button>
+            <button class="btn-book" onclick="startBooking(${feat.id})">예매</button>
+          </div>
+        </div>
+
+        <div class="curation-right">
+          <div class="curation-info">
+            <div class="tag-title">#필름소사이어티</div>
+            <h3>${feat.t}</h3>
+            <div class="sub-text">${feat.sub}</div>
+            <p class="desc-text">${feat.d}</p>
+          </div>
+
+          <div class="curation-sub-grid">
+            ${subList.map(m => `
+              <div class="curation-sub-card${m.id === feat.id ? " on" : ""}" onclick="selectCurationMovie(${m.id})">
+                <div class="poster-box ph">
+                  ${renderPosterHtml(m.poster, m.t)}
+                </div>
+                <div class="title">${m.t}</div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function selectCurationMovie(id) {
+      curationCurId = id;
+      drawCuration();
+    }
+
     /* Theater Mounts */
     function mounts() {
       document.querySelectorAll(".th").forEach(el => {
         const home = el.id === "thHome";
         el.innerHTML = `
           <div class="stagebox">
-            <div class="wing l"></div>
-            <div class="screen" ${home ? 'role="button" tabindex="0" aria-label="특별관 자세히 보기"' : ''}></div>
-            <div class="wing r"></div>
+            <div class="wing l"><img class="wing-img" src="" alt=""></div>
+            <div class="screen" ${home ? 'role="button" tabindex="0" aria-label="특별관 자세히 보기"' : ''}>
+              <img class="screen-img" src="" alt="" onerror="this.style.display='none'">
+              <span class="screen-txt"></span>
+            </div>
+            <div class="wing r"><img class="wing-img" src="" alt=""></div>
           </div>
           <div class="desc"></div>
           <div class="tabs"></div>
@@ -1135,9 +1471,18 @@
       const f = fmts[k];
       document.querySelectorAll(".th").forEach(el => {
         const s = el.querySelector(".screen");
+        const scImg = el.querySelector(".screen-img");
+        const scTxt = el.querySelector(".screen-txt");
+        const wings = el.querySelectorAll(".wing-img");
+
         s.style.setProperty("--w", f[2].w);
         s.style.setProperty("--h", f[2].h);
-        s.textContent = f[0];
+        
+        scTxt.textContent = f[0];
+        scImg.src = f[3];
+        scImg.style.display = "block";
+        wings.forEach(w => w.src = f[3]);
+
         el.classList.toggle("sx", k === "SCREENX");
         el.querySelector(".desc").textContent = f[1];
         el.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.k === k));
@@ -1150,7 +1495,7 @@
       list.forEach((m, i) => {
         const b = document.createElement("button");
         b.className = "ph" + (label === "영화" && i === 2 ? " big" : "");
-        b.textContent = m.t;
+        b.innerHTML = renderPosterHtml(m.poster, m.t);
         b.onclick = () => openM(m, label);
         el.appendChild(b);
       });
@@ -1164,7 +1509,7 @@
       $("#md").innerHTML = `
         <button class="x" aria-label="닫기" onclick="closeM()">×</button>
         <div class="top">
-          <div class="ph">${label}<br>${m.t}</div>
+          <div class="ph">${renderPosterHtml(m.poster, m.t)}</div>
           <div class="info">
             <h2>${m.t}</h2>
             <p>${m.sub}</p>
@@ -1421,6 +1766,7 @@
 
     /* App Initialization */
     initStage();
+    drawCuration();
     drawGrid($("#mg"), movies, "영화");
     drawGrid($("#sg"), items, "매점");
     mounts();
