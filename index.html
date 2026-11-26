@@ -1,1777 +1,1536 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>CGV 리디자인</title>
-  <style>
-    :root {
-      --bg: #fff;
-      --fg: #111;
-      --gray: #242424;
-      --hd: #242424;
-      --ph: #242424;
-      --soft: #242424;
-      --card: #fff;
-      --line: #e3e3e3;
-      --dim: rgba(0, 0, 0, 0.6);
-      --red: #FF0001;
-      box-sizing: border-box;
-      padding-top: env(safe-area-inset-top, 0px);
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) {
-        --bg: #0d0d0d;
-        --fg: #f2f2f2;
-        --card: #1a1a1a;
-        --line: #333;
-        --dim: rgba(0, 0, 0, 0.75);
-      }
-    }
-
-    :root[data-theme="dark"] {
-      --bg: #0d0d0d;
-      --fg: #f2f2f2;
-      --card: #1a1a1a;
-      --line: #333;
-      --dim: rgba(0, 0, 0, 0.75);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 64px);
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--fg);
-      font-family: "Noto Sans KR", system-ui, sans-serif;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0 0 auto;
-      height: env(safe-area-inset-top, 0px);
-      background: var(--hd);
-      z-index: 30;
-    }
-
-    button {
-      font: inherit;
-      color: inherit;
-      background: none;
-      border: 0;
-      cursor: pointer;
-    }
-
-    button:focus-visible {
-      outline: 2px solid var(--red);
-      outline-offset: 2px;
-    }
-
-    button:disabled {
-      cursor: not-allowed;
-    }
-
-    /* Fixed Header & Top Navigation */
-    header {
-      position: fixed;
-      top: env(safe-area-inset-top, 0px);
-      left: 0;
-      right: 0;
-      z-index: 30;
-      height: 64px;
-      background: var(--hd);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    }
-
-    .logo-btn {
-      display: flex;
-      align-items: center;
-      padding: 0;
-    }
-
-    .logo-img {
-      height: 32px;
-      display: block;
-    }
-
-    nav {
-      display: flex;
-      gap: 6px;
-    }
-
-    nav button {
-      padding: 8px 10px;
-      font-size: 14px;
-      border-radius: 6px;
-    }
-
-    nav button:hover,
-    nav button.on {
-      background: rgba(255, 255, 255, 0.16);
-    }
-
-    nav button.on {
-      color: var(--red);
-    }
-
-    /* Sticky Back Bar */
-    .backbar {
-      position: fixed;
-      top: calc(env(safe-area-inset-top, 0px) + 64px);
-      left: 0;
-      right: 0;
-      height: 0;
-      z-index: 25;
-    }
-
-    .btn-back {
-      position: absolute;
-      left: 24px;
-      top: 14px;
-      padding: 8px 16px;
-      font-size: 14px;
-      font-weight: 600;
-      border-radius: 999px;
-      background: var(--gray);
-      color: #fff;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-    }
-
-    .btn-back:hover {
-      background: var(--red);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    /* Common Poster Placeholder & Image Holder */
-    .ph {
-      position: relative;
-      background: var(--ph);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      font-weight: 500;
-      color: #fff;
-      padding: 8px;
-      overflow: hidden;
-    }
-
-    .ph img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    /* 마우스 호버 시에만 텍스트 및 어두운 배경 오버레이 표시 */
-    .ph::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.55);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      z-index: 1;
-    }
-
-    .ph span.label {
-      position: relative;
-      z-index: 2;
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      padding: 0 4px;
-    }
-
-    .ph:hover::after,
-    .ph:hover span.label {
-      opacity: 1;
-    }
-
-    /* Smooth Page Fade-In Transition (0.5s) */
-    section.page {
-      display: none;
-      min-height: calc(100vh - 64px);
-      padding-top: 64px;
-    }
-
-    section.page.on {
-      display: block;
-      animation: pageFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    @keyframes pageFadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(12px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* Carousel Stage */
-    .stage {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 80px 16px 40px;
-      min-height: 560px;
-      overflow: hidden;
-    }
-
-    .stage-track {
-      --s1: clamp(120px, 21vw, 330px);
-      --s2: calc(var(--s1) * 1.8);
-      position: relative;
-      width: 100%;
-      height: 400px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .stage .ph {
-      position: absolute;
-      width: clamp(70px, 11vw, 168px);
-      aspect-ratio: 7 / 10;
-      font-size: 13px;
-      border-radius: 12px;
-      opacity: 0;
-      pointer-events: none;
-      transform: scale(0.8);
-      z-index: 1;
-      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-                  width 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-                  opacity 0.4s,
-                  box-shadow 0.4s;
-    }
-
-    .stage .ph[data-pos="-2"] {
-      transform: translateX(calc(var(--s2) * -1)) scale(0.85);
-      opacity: 0.4;
-      pointer-events: auto;
-    }
-
-    .stage .ph[data-pos="-1"] {
-      transform: translateX(calc(var(--s1) * -1)) scale(0.95);
-      opacity: 0.75;
-      pointer-events: auto;
-      z-index: 2;
-    }
-
-    .stage .ph[data-pos="0"] {
-      width: clamp(110px, 17vw, 256px);
-      aspect-ratio: 256 / 362;
-      font-size: 18px;
-      transform: none;
-      opacity: 1;
-      pointer-events: auto;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
-      z-index: 5;
-    }
-
-    .stage .ph[data-pos="1"] {
-      transform: translateX(var(--s1)) scale(0.95);
-      opacity: 0.75;
-      pointer-events: auto;
-      z-index: 2;
-    }
-
-    .stage .ph[data-pos="2"] {
-      transform: translateX(var(--s2)) scale(0.85);
-      opacity: 0.4;
-      pointer-events: auto;
-    }
-
-    .ctl {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      padding-bottom: 60px;
-      flex-wrap: wrap;
-    }
-
-    .ctl button {
-      padding: 10px 20px;
-      border-radius: 999px;
-      background: var(--gray);
-      color: #fff;
-      font-size: 14px;
-    }
-
-    .ctl button:hover,
-    .ctl .red {
-      background: var(--red);
-    }
-
-    /* Curation Section Layout */
-    .curation-sec {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 40px 24px 80px;
-    }
-
-    .curation-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 28px;
-    }
-
-    .curation-head h2 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: 700;
-    }
-
-    .curation-head .more-btn {
-      font-size: 14px;
-      color: #888;
-    }
-
-    .curation-head .more-btn:hover {
-      color: var(--red);
-    }
-
-    .curation-body {
-      display: grid;
-      grid-template-columns: 280px 1fr;
-      gap: 36px;
-      align-items: start;
-    }
-
-    .curation-left {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .curation-left .poster-box {
-      width: 100%;
-      aspect-ratio: 256 / 362;
-      border-radius: 12px;
-      position: relative;
-    }
-
-    .badge-tag {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      background: var(--red);
-      color: #fff;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 4px 8px;
-      border-radius: 4px;
-      z-index: 3;
-    }
-
-    .curation-left .actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    .curation-left .actions button {
-      flex: 1;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      border: 1px solid var(--line);
-      background: var(--card);
-      color: var(--fg);
-      transition: background 0.2s, color 0.2s;
-    }
-
-    .curation-left .actions button:hover {
-      background: rgba(128, 128, 128, 0.15);
-    }
-
-    .curation-left .actions button.btn-book {
-      background: var(--red);
-      color: #fff;
-      border: none;
-    }
-
-    .curation-left .actions button.btn-book:hover {
-      opacity: 0.9;
-    }
-
-    .curation-right {
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-    }
-
-    .curation-info {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--line);
-      min-height: 180px;
-    }
-
-    .curation-info .tag-title {
-      font-size: 14px;
-      color: var(--red);
-      font-weight: 700;
-    }
-
-    .curation-info h3 {
-      margin: 0;
-      font-size: 28px;
-      font-weight: 700;
-    }
-
-    .curation-info .sub-text {
-      font-size: 14px;
-      color: #888;
-    }
-
-    .curation-info .desc-text {
-      font-size: 15px;
-      color: var(--fg);
-      line-height: 1.75;
-      margin: 6px 0 0;
-      white-space: pre-line;
-    }
-
-    .curation-sub-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-    }
-
-    .curation-sub-card {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      cursor: pointer;
-    }
-
-    .curation-sub-card .poster-box {
-      aspect-ratio: 108 / 152;
-      border-radius: 8px;
-      transition: transform 0.2s, box-shadow 0.2s, outline 0.2s;
-    }
-
-    .curation-sub-card:hover .poster-box {
-      transform: translateY(-4px);
-    }
-
-    .curation-sub-card.on .poster-box {
-      outline: 3px solid var(--red);
-      outline-offset: 2px;
-    }
-
-    .curation-sub-card .title {
-      font-size: 13px;
-      font-weight: 600;
-      text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* Grids */
-    .grid {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 56px 24px 100px;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: clamp(12px, 3vw, 40px) clamp(10px, 2.5vw, 32px);
-      align-items: end;
-    }
-
-    .grid .ph {
-      aspect-ratio: 108 / 152;
-      transition: transform 0.2s;
-      font-size: 14px;
-      border-radius: 8px;
-    }
-
-    .grid .ph:hover {
-      transform: translateY(-6px);
-    }
-
-    .grid .ph.big {
-      grid-column: 3;
-      grid-row: 1;
-      aspect-ratio: 164 / 231;
-      font-size: 20px;
-    }
-
-    .grid .ph:nth-child(1) {
-      grid-row: 1;
-    }
-
-    .grid.feat {
-      padding-top: 90px;
-    }
-
-    .h {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 64px 24px 0;
-      font-size: 22px;
-      font-weight: 700;
-    }
-
-    /* Theater Section */
-    .th {
-      background: #000;
-      color: #fff;
-      min-height: calc(100vh - 64px);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 56px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .th .stagebox {
-      position: relative;
-      width: 100%;
-      height: min(56vh, 460px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .th .screen {
-      position: relative;
-      width: var(--w, 50%);
-      height: var(--h, 100%);
-      background: var(--gray);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      z-index: 2;
-      border: 3px solid #000;
-      outline: 1px solid #3a3a3a;
-      transition: width 0.4s, height 0.4s;
-      overflow: hidden;
-    }
-
-    .th .screen img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.65;
-    }
-
-    .th .screen span {
-      position: relative;
-      z-index: 3;
-      font-weight: 700;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
-    }
-
-    .wing {
-      position: absolute;
-      top: 50%;
-      width: 18%;
-      height: 90%;
-      background: var(--gray);
-      outline: 1px solid #3a3a3a;
-      opacity: 0;
-      transition: opacity 0.4s;
-      overflow: hidden;
-    }
-
-    .wing img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.4;
-    }
-
-    .wing.l {
-      left: 0;
-      clip-path: polygon(0 0, 100% 18%, 100% 82%, 0 100%);
-      transform: translateY(-50%);
-    }
-
-    .wing.r {
-      right: 0;
-      clip-path: polygon(0 18%, 100% 0, 100% 100%, 0 82%);
-      transform: translateY(-50%);
-    }
-
-    .th.sx .wing {
-      opacity: 1;
-    }
-
-    .desc {
-      color: #bbb;
-      font-size: 15px;
-      text-align: center;
-      min-height: 24px;
-      padding: 0 16px;
-    }
-
-    .tabs {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 8px clamp(16px, 3.5vw, 48px);
-      padding: 0 16px 60px;
-    }
-
-    .tabs button {
-      font-size: clamp(16px, 2.2vw, 30px);
-      color: #999;
-      padding: 6px 4px;
-      border-bottom: 2px solid transparent;
-    }
-
-    .tabs button:hover {
-      color: #ddd;
-    }
-
-    .tabs button.on {
-      color: #fff;
-      border-color: var(--red);
-    }
-
-    /* Modal */
-    .ov {
-      position: fixed;
-      inset: 0;
-      background: var(--dim);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 40;
-      padding: 16px;
-    }
-
-    .ov.on {
-      display: flex;
-    }
-
-    .modal {
-      background: var(--card);
-      border-radius: 24px;
-      width: min(880px, 100%);
-      max-height: 90vh;
-      overflow: auto;
-      padding: 40px;
-      position: relative;
-      animation: up 0.25s;
-    }
-
-    @keyframes up {
-      from {
-        transform: translateY(24px);
-        opacity: 0;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .modal {
-        animation: none;
-      }
-      * {
-        transition: none !important;
-      }
-    }
-
-    .x {
-      position: absolute;
-      right: 16px;
-      top: 12px;
-      font-size: 28px;
-      line-height: 1;
-      padding: 6px 10px;
-    }
-
-    .top {
-      display: flex;
-      gap: 32px;
-    }
-
-    .top .ph {
-      width: 210px;
-      aspect-ratio: 210 / 297;
-      flex: none;
-      border-radius: 8px;
-    }
-
-    .info {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-
-    .info h2 {
-      margin: 0 0 6px;
-      font-size: 26px;
-    }
-
-    .info p {
-      margin: 0;
-      color: #888;
-    }
-
-    .acts {
-      display: flex;
-      gap: 14px;
-      margin-top: auto;
-      padding-top: 20px;
-    }
-
-    .circ {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: var(--gray);
-      color: #fff;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex: none;
-    }
-
-    button.circ:hover,
-    button.circ.on,
-    button.circ.go {
-      background: var(--red);
-    }
-
-    .body {
-      margin: 36px 0 28px;
-      line-height: 1.75;
-      max-width: 70ch;
-    }
-
-    .cast {
-      display: flex;
-      gap: 24px;
-      flex-wrap: wrap;
-    }
-
-    .cast div {
-      text-align: center;
-      font-size: 12px;
-    }
-
-    .cast .circ {
-      width: 92px;
-      height: 92px;
-      margin-bottom: 6px;
-    }
-
-    /* Toast Notification */
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-      transform: translate(-50%, 40px);
-      background: var(--gray);
-      color: #fff;
-      padding: 12px 20px;
-      border-radius: 999px;
-      opacity: 0;
-      transition: 0.3s;
-      z-index: 60;
-      pointer-events: none;
-      border: 1px solid #444;
-    }
-
-    .toast.on {
-      opacity: 1;
-      transform: translate(-50%, 0);
-    }
-
-    /* Booking System */
-    .bk {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 76px 24px 100px;
-      display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: 32px;
-      align-items: start;
-    }
-
-    .bk.one {
-      grid-template-columns: 1fr;
-      max-width: 560px;
-    }
-
-    .steps {
-      grid-column: 1 / -1;
-      display: flex;
-      gap: 8px;
-    }
-
-    .steps div {
-      flex: 1;
-      padding: 10px 4px;
-      border-bottom: 3px solid var(--line);
-      font-size: 14px;
-      color: #888;
-    }
-
-    .steps div.on {
-      border-color: var(--red);
-      color: var(--fg);
-      font-weight: 700;
-    }
-
-    .steps div.done {
-      border-color: var(--gray);
-      color: var(--fg);
-    }
-
-    .bk h3 {
-      margin: 28px 0 12px;
-      font-size: 16px;
-    }
-
-    .bk h3:first-child {
-      margin-top: 0;
-    }
-
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .chip {
-      padding: 10px 16px;
-      border-radius: 999px;
-      background: var(--gray);
-      color: #fff;
-      font-size: 14px;
-    }
-
-    .chip:hover {
-      background: #3a3a3a;
-    }
-
-    .chip.on {
-      background: var(--red);
-    }
-
-    .shows {
-      display: grid;
-      gap: 8px;
-    }
-
-    .show {
-      display: grid;
-      grid-template-columns: 80px 1fr auto;
-      align-items: center;
-      gap: 12px;
-      padding: 16px 20px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      text-align: left;
-    }
-
-    .show b {
-      font-size: 20px;
-    }
-
-    .show em {
-      font-style: normal;
-      color: #888;
-      font-size: 13px;
-    }
-
-    .show:hover {
-      border-color: var(--gray);
-    }
-
-    .show.on {
-      background: var(--gray);
-      color: #fff;
-      border-color: var(--red);
-    }
-
-    .show.on em {
-      color: #ccc;
-    }
-
-    .scr {
-      width: 70%;
-      margin: 0 auto 28px;
-      padding: 8px;
-      text-align: center;
-      font-size: 12px;
-      letter-spacing: 0.3em;
-      background: var(--gray);
-      color: #fff;
-      border-radius: 4px 4px 40px 40px / 4px 4px 14px 14px;
-    }
-
-    .row {
-      display: flex;
-      gap: 6px;
-      justify-content: center;
-      margin-bottom: 6px;
-      align-items: center;
-    }
-
-    .row i {
-      width: 18px;
-      font-style: normal;
-      font-size: 12px;
-      color: #888;
-    }
-
-    .seat {
-      width: clamp(20px, 5.5vw, 34px);
-      aspect-ratio: 1;
-      border-radius: 6px 6px 3px 3px;
-      background: var(--gray);
-      color: #fff;
-      font-size: 10px;
-    }
-
-    .seat:hover:not(:disabled) {
-      background: #555;
-    }
-
-    .seat.gap {
-      margin-right: 20px;
-    }
-
-    .seat.t {
-      opacity: 0.15;
-    }
-
-    .seat.on {
-      background: var(--red);
-    }
-
-    .legend {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      margin-top: 20px;
-      font-size: 12px;
-      color: #888;
-    }
-
-    .legend span:before {
-      content: "";
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border-radius: 3px;
-      margin-right: 6px;
-      vertical-align: -2px;
-      background: var(--gray);
-    }
-
-    .legend .a:before {
-      background: var(--red);
-    }
-
-    .legend .t:before {
-      opacity: 0.15;
-    }
-
-    .sum {
-      position: sticky;
-      top: 96px;
-      background: var(--gray);
-      color: #fff;
-      border-radius: 16px;
-      padding: 24px;
-    }
-
-    .sum h4 {
-      margin: 0 0 12px;
-      font-size: 20px;
-    }
-
-    .sum p {
-      margin: 6px 0;
-      color: #ccc;
-      font-size: 14px;
-    }
-
-    .tot {
-      font-size: 26px;
-      font-weight: 700;
-      margin: 20px 0 16px;
-      color: #fff;
-    }
-
-    .cta {
-      width: 100%;
-      padding: 14px;
-      border-radius: 999px;
-      background: var(--red);
-      color: #fff;
-      font-weight: 700;
-      font-size: 16px;
-    }
-
-    .cta:disabled {
-      background: #555;
-      color: #999;
-    }
-
-    .tk {
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      overflow: hidden;
-      margin-bottom: 12px;
-      background: var(--card);
-    }
-
-    .tk .hd {
-      background: var(--red);
-      color: #fff;
-      padding: 20px 24px;
-    }
-
-    .tk .hd small {
-      opacity: 0.85;
-    }
-
-    .tk .hd h2 {
-      margin: 4px 0 0;
-      font-size: 24px;
-    }
-
-    .tk .bd {
-      padding: 20px 24px;
-      display: grid;
-      grid-template-columns: 90px 1fr;
-      gap: 10px 8px;
-      font-size: 14px;
-    }
-
-    .tk .bd span {
-      color: #888;
-    }
-
-    .tk .bd.sep {
-      border-top: 2px dashed var(--line);
-    }
-
-    .empty {
-      text-align: center;
-      padding: 60px 0;
-      color: #888;
-    }
-
-    /* Media Queries */
-    @media (max-width: 850px) {
-      .curation-body {
-        grid-template-columns: 1fr;
-      }
-      .curation-sub-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 800px) {
-      .bk {
-        grid-template-columns: 1fr;
-      }
-      .sum {
-        position: static;
-      }
-    }
-
-    @media (max-width: 700px) {
-      header {
-        padding: 0 12px;
-      }
-      nav button {
-        padding: 6px;
-        font-size: 12px;
-      }
-      .logo-img {
-        height: 26px;
-      }
-      .btn-back {
-        left: 12px;
-      }
-      .top {
-        flex-direction: column;
-      }
-      .top .ph {
-        width: 60%;
-      }
-      .modal {
-        padding: 24px;
-      }
-      .stage .ph[data-pos="-2"],
-      .stage .ph[data-pos="2"] {
-        opacity: 0;
-      }
-      .stage-track {
-        --s1: 130px;
-      }
-      .seat.gap {
-        margin-right: 10px;
-      }
-      .show {
-        grid-template-columns: 64px 1fr auto;
-      }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CGV 리디자인</title>
+<style>
+:root{--bg:#fff;--fg:#111;--gray:#242424;--hd:#242424;--ph:#242424;--soft:#242424;--card:#fff;--line:#e3e3e3;--dim:rgba(0,0,0,.6);--red:#FF0001;--ease:cubic-bezier(.22,1,.36,1);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d0d0d;--fg:#f2f2f2;--card:#1a1a1a;--line:#333;--dim:rgba(0,0,0,.75)}}
+:root[data-theme="dark"]{--bg:#0d0d0d;--fg:#f2f2f2;--card:#1a1a1a;--line:#333;--dim:rgba(0,0,0,.75)}
+*{box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 58px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Noto Sans KR",system-ui,sans-serif;transition:background .5s var(--ease),color .5s var(--ease)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--hd);z-index:30}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;transition:background .35s var(--ease),color .35s var(--ease),border-color .35s var(--ease),transform .35s var(--ease),opacity .35s var(--ease)}
+button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+button:disabled{cursor:not-allowed}
+
+/* 상단 헤더 & 메인 레드 스트로크 검색 버튼 */
+header{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:30;height:58px;background:var(--hd);color:#fff;display:flex;align-items:center;gap:10px;padding:0 16px;box-shadow:0 2px 12px rgba(0,0,0,.28)}
+.logo-btn{display:flex;align-items:center;padding:0;flex:none}
+.logo-img{height:28px;display:block}
+.nav-search{flex:1;height:36px;border-radius:999px;border:1.5px solid var(--red);background:transparent;display:flex;align-items:center;justify-content:flex-end;padding:0 14px}
+.nav-search:hover{background:rgba(255,0,1,.1)}
+.nav-search:hover svg{transform:scale(1.12)}
+.nav-search svg{width:17px;height:17px;stroke:var(--red);fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--ease)}
+nav{display:flex;gap:2px;flex:none}
+nav button{padding:6px 10px;font-size:13px;border-radius:6px;white-space:nowrap}
+nav button:hover,nav button.on{background:rgba(255,255,255,.14)}
+nav button.on{color:var(--red)}
+
+.backbar{position:fixed;top:calc(env(safe-area-inset-top,0px) + 58px);left:0;right:0;height:0;z-index:25}
+.btn-back{position:absolute;left:18px;top:12px;padding:8px 16px;font-size:13px;font-weight:600;border-radius:999px;background:var(--gray);color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.btn-back:hover{background:var(--red)}
+.hidden{display:none!important}
+.ph{position:relative;background:var(--ph);display:flex;align-items:center;justify-content:center;text-align:center;font-weight:500;color:#fff;padding:8px;overflow:hidden}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.ph::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.55);opacity:0;transition:opacity .45s var(--ease);z-index:1}
+.ph span.label{position:relative;z-index:2;text-shadow:0 1px 4px rgba(0,0,0,.8);opacity:0;transition:opacity .45s var(--ease);padding:0 4px}
+.ph:hover::after,.ph:hover span.label{opacity:1}
+
+section.page{display:none;min-height:calc(100vh - 58px);padding-top:58px}
+section.page.on{display:block;animation:pageFadeIn .75s var(--ease) forwards}
+@keyframes pageFadeIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* 히어로 회전 스테이지(대형화) & 빠르고 역동적인 물결 블러 배경 */
+.hero-wrap{position:relative;overflow:hidden;background:#0d0d10}
+.stage-bg{position:absolute;inset:-160px;background-size:cover;background-position:center;filter:blur(52px) brightness(.46) saturate(1.35);transform:scale(1.38);transition:background-image .9s var(--ease);animation:waveBlur 3.2s ease-in-out infinite;z-index:0;pointer-events:none;will-change:transform}
+.stage-wave{position:absolute;inset:-160px;background:radial-gradient(ellipse at 30% 45%,rgba(255,255,255,.16),transparent 52%),radial-gradient(ellipse at 72% 55%,rgba(255,0,1,.2),transparent 55%);mix-blend-mode:screen;animation:waveShimmer 2.2s ease-in-out infinite alternate;z-index:0;pointer-events:none;will-change:transform,opacity}
+.stage-wave2{position:absolute;inset:-160px;background:conic-gradient(from 45deg at 50% 50%,rgba(255,255,255,.06),transparent 35%,rgba(255,0,1,.1) 65%,transparent);filter:blur(32px);animation:waveRipple 2.8s ease-in-out infinite alternate;z-index:0;pointer-events:none;will-change:transform}
+.stage-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.16),rgba(0,0,0,.64))}
+@keyframes waveBlur{
+  0%{transform:scale(1.36) translate3d(-4.5%,-2.5%,0) rotate(-2.2deg) skewX(-2deg)}
+  33%{transform:scale(1.5) translate3d(4.2%,-3.2%,0) rotate(2deg) skewX(2.5deg)}
+  66%{transform:scale(1.42) translate3d(2.8%,3.8%,0) rotate(-1.5deg) skewX(-1.8deg)}
+  100%{transform:scale(1.36) translate3d(-4.5%,-2.5%,0) rotate(-2.2deg) skewX(-2deg)}
+}
+@keyframes waveShimmer{
+  0%{transform:translate3d(-6%,4%,0) scale(1.12) rotate(-3deg);opacity:.5}
+  50%{transform:translate3d(6%,-4%,0) scale(1.3) rotate(3deg);opacity:1}
+  100%{transform:translate3d(-3%,-5%,0) scale(1.18) rotate(-2deg);opacity:.6}
+}
+@keyframes waveRipple{
+  0%{transform:translate3d(5%,-3%,0) scale(1.2) skewY(-3deg)}
+  100%{transform:translate3d(-5%,4%,0) scale(1.35) skewY(3deg)}
+}
+.stage{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;padding:80px 16px 36px;min-height:680px;overflow:hidden}
+.stage-track{--s1:clamp(155px,24vw,395px);--s2:calc(var(--s1)*1.82);position:relative;width:100%;height:500px;display:flex;align-items:center;justify-content:center}
+.stage .ph{position:absolute;width:clamp(95px,14vw,224px);aspect-ratio:7/10;font-size:15px;border-radius:14px;opacity:0;pointer-events:none;transform:scale(.8);z-index:1;transition:transform .85s var(--ease),width .85s var(--ease),opacity .85s var(--ease),box-shadow .85s var(--ease)}
+.stage .ph[data-pos="-2"]{transform:translateX(calc(var(--s2)*-1)) scale(.84);opacity:.42;pointer-events:auto}
+.stage .ph[data-pos="-1"]{transform:translateX(calc(var(--s1)*-1)) scale(.95);opacity:.78;pointer-events:auto;z-index:2}
+.stage .ph[data-pos="0"]{width:clamp(155px,22vw,334px);aspect-ratio:256/362;font-size:20px;transform:none;opacity:1;pointer-events:auto;box-shadow:0 22px 56px rgba(0,0,0,.65);z-index:5}
+.stage .ph[data-pos="1"]{transform:translateX(var(--s1)) scale(.95);opacity:.78;pointer-events:auto;z-index:2}
+.stage .ph[data-pos="2"]{transform:translateX(var(--s2)) scale(.84);opacity:.42;pointer-events:auto}
+.ctl{position:relative;z-index:1;display:flex;justify-content:center;gap:12px;padding-bottom:64px;flex-wrap:wrap}
+.ctl button,.pill-btn{padding:11px 22px;border-radius:999px;background:var(--gray);color:#fff;font-size:14px;font-weight:500}
+.ctl button:hover,.ctl .red,.pill-btn:hover,.pill-btn.on,.pill-btn.go{background:var(--red)}
+
+/* 큐레이션 & 관람객 한줄평/평점 미리보기 */
+.curation-sec{max-width:1100px;margin:0 auto;padding:48px 24px 88px}
+.curation-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+.curation-head h2{margin:0;font-size:24px;font-weight:700}
+.curation-head .more-btn{font-size:14px;color:#888}
+.curation-head .more-btn:hover{color:var(--red)}
+.curation-body{display:grid;grid-template-columns:280px 1fr;gap:36px;align-items:start}
+.curation-fade{transition:opacity .48s var(--ease),transform .48s var(--ease)}
+.curation-fade.switching{opacity:0;transform:translateY(10px)}
+.curation-left{display:flex;flex-direction:column;gap:16px}
+.curation-left .poster-box{width:100%;aspect-ratio:256/362;border-radius:12px;position:relative;box-shadow:0 10px 28px rgba(0,0,0,.18)}
+.badge-tag{position:absolute;top:12px;left:12px;background:var(--red);color:#fff;font-size:11px;font-weight:700;padding:4px 8px;border-radius:4px;z-index:3}
+.curation-left .actions{display:flex;gap:10px}
+.curation-left .actions button{flex:1;padding:12px;border-radius:8px;font-size:14px;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--fg)}
+.curation-left .actions button:hover{background:rgba(128,128,128,.15)}
+.curation-left .actions button.btn-book{background:var(--red);color:#fff;border:none}
+.curation-left .actions button.btn-book:hover{opacity:.9}
+.curation-right{display:flex;flex-direction:column;gap:24px}
+.curation-info{display:flex;flex-direction:column;gap:8px;padding-bottom:22px;border-bottom:1px solid var(--line)}
+.curation-info .tag-title{font-size:14px;color:var(--red);font-weight:700}
+.curation-title-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.curation-info h3{margin:0;font-size:28px;font-weight:700}
+.rating-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:999px;background:rgba(255,0,1,.1);color:var(--red);font-size:13px;font-weight:700}
+.curation-info .sub-text{font-size:14px;color:#888}
+.curation-info .lead-text{font-size:16px;font-weight:600;color:var(--fg);margin:4px 0 0;line-height:1.6}
+.curation-info .desc-text{font-size:14px;color:#777;line-height:1.75;margin:2px 0 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.cur-rev-preview{margin-top:8px;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card);display:flex;flex-direction:column;gap:6px}
+.cur-rev-head{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#888}
+.cur-rev-head b{color:var(--fg)}
+.cur-rev-item{font-size:13px;line-height:1.5;display:flex;align-items:baseline;gap:8px}
+.cur-rev-stars{color:var(--red);font-weight:700;flex:none}
+.curation-sub-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.curation-sub-card{display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:transform .4s var(--ease)}
+.curation-sub-card .poster-box{aspect-ratio:108/152;border-radius:8px;transition:transform .4s var(--ease),box-shadow .4s var(--ease),outline .3s var(--ease)}
+.curation-sub-card:hover .poster-box{transform:translateY(-4px)}
+.curation-sub-card.on .poster-box{outline:3px solid var(--red);outline-offset:2px}
+.curation-sub-card .title{font-size:13px;font-weight:600;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .35s var(--ease)}
+.curation-sub-card.on .title{color:var(--red)}
+
+/* 관람객 한줄평 & 평점 리스트 (모달 내부 공용) */
+.rev-sec{margin-top:28px;padding-top:24px;border-top:1px solid var(--line)}
+.rev-sec-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.rev-sec-head h4{margin:0;font-size:17px;display:flex;align-items:center;gap:8px}
+.rev-list{display:flex;flex-direction:column;gap:10px}
+.rev-card{padding:14px 18px;border:1px solid var(--line);border-radius:14px;background:var(--bg);display:flex;flex-direction:column;gap:6px}
+.rev-card.mine{border-color:var(--red)}
+.rev-card-top{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#888}
+.rev-card-top .stars{color:var(--red);font-weight:700;font-size:13px}
+.rev-card p{margin:0;font-size:14px;line-height:1.55}
+.star-picker{display:flex;gap:8px;margin:14px 0 18px}
+.star-btn{padding:10px 16px;border-radius:999px;background:var(--gray);color:#fff;font-size:14px;font-weight:700}
+.star-btn.on{background:var(--red)}
+
+.grid{max-width:1100px;margin:0 auto;padding:56px 24px 100px;display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(12px,3vw,40px) clamp(10px,2.5vw,32px);align-items:end}
+.grid .ph{aspect-ratio:108/152;transition:transform .4s var(--ease);font-size:14px;border-radius:8px}
+.grid .ph:hover{transform:translateY(-6px)}
+.grid .ph.big{grid-column:3;grid-row:1;aspect-ratio:164/231;font-size:20px}
+.grid .ph:nth-child(1){grid-row:1}
+.grid.feat{padding-top:90px}
+.h{max-width:1100px;margin:0 auto;padding:64px 24px 0;font-size:22px;font-weight:700}
+
+/* 홈 특별관 소개 스테이지 */
+.th{background:#000;color:#fff;min-height:94vh;padding:96px 0 36px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:44px;overflow:hidden;position:relative}
+.th .stagebox{position:relative;width:100%;height:min(68vh,620px);display:flex;align-items:center;justify-content:center}
+.th .screen{position:relative;width:var(--w,64%);height:var(--h,100%);background:radial-gradient(circle at 50% 45%,#1d1f26 0%,#0b0b0e 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-size:clamp(28px,4.2vw,48px);z-index:2;border:3px solid #000;outline:1px solid #444;box-shadow:0 24px 80px rgba(0,0,0,.9);transition:width .65s var(--ease),height .65s var(--ease)}
+.th .screen span{font-weight:700;letter-spacing:.1em}
+.wing{position:absolute;top:50%;width:21%;height:92%;background:#0e0e12;outline:1px solid #333;opacity:0;transition:opacity .65s var(--ease)}
+.wing.l{left:0;clip-path:polygon(0 0,100% 16%,100% 84%,0 100%);transform:translateY(-50%)}
+.wing.r{right:0;clip-path:polygon(0 16%,100% 0,100% 100%,0 84%);transform:translateY(-50%)}
+.th.sx .wing{opacity:1}
+.desc{color:#ccc;font-size:16px;text-align:center;min-height:24px;padding:0 16px}
+.more3d{padding:14px 30px;border-radius:999px;background:var(--red);color:#fff;font-weight:700;font-size:15px}
+.more3d:hover{opacity:.9}
+.tabs{display:flex;justify-content:center;flex-wrap:wrap;gap:8px clamp(18px,3.8vw,52px);padding:0 16px 44px}
+.tabs button{font-size:clamp(17px,2.3vw,32px);color:#999;padding:6px 4px;border-bottom:2px solid transparent}
+.tabs button:hover{color:#ddd}
+.tabs button.on{color:#fff;border-color:var(--red)}
+
+/* 특별관 3D 상세 & 4DX 모션 체어 배지(그라데이션 제거 · 단색) */
+.tp{background:#000;color:#fff;min-height:calc(100vh - 58px)}
+.tp-in{max-width:1100px;margin:0 auto;padding:72px 24px 20px}
+.tp-in h2{margin:0 0 6px;font-size:26px}
+.tp-in .desc{text-align:left;padding:0;margin-bottom:20px}
+.tp .tabs{padding:28px 16px 32px}
+.v3{position:relative;aspect-ratio:16/10;min-height:380px;border-radius:16px;overflow:hidden;background:#030305;border:1px solid #1e1e24}
+.v3 canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.v3err{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#999;font-size:14px}
+.tip{position:absolute;pointer-events:none;background:#fff;color:#111;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;display:none;white-space:nowrap;z-index:4;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.inb{position:absolute;right:12px;top:56px;border:2px solid rgba(255,255,255,.85);border-radius:10px;pointer-events:none;display:none;z-index:3;color:#fff;font-size:11px;box-shadow:0 6px 20px rgba(0,0,0,.65);overflow:hidden}
+.inb span{position:absolute;left:8px;top:6px;background:rgba(0,0,0,.72);padding:3px 10px;border-radius:999px;font-weight:600}
+.vbar{position:absolute;left:12px;right:12px;top:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:#fff;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);padding:8px 14px;border-radius:999px;z-index:3}
+.vbar-acts{display:flex;align-items:center;gap:6px;flex:none}
+.vback{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);padding:10px 20px;border-radius:999px;background:rgba(36,36,36,.92);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:14px;font-weight:600;z-index:4;box-shadow:0 4px 16px rgba(0,0,0,.5)}
+.vback:hover{background:var(--red);border-color:var(--red)}
+.motion-hud{position:absolute;left:50%;top:58px;transform:translateX(-50%);padding:7px 18px;border-radius:999px;background:var(--red);color:#fff;font-size:12px;font-weight:700;letter-spacing:.03em;z-index:4;box-shadow:none}
+
+/* 모달 */
+.ov{position:fixed;inset:0;background:var(--dim);display:flex;align-items:center;justify-content:center;z-index:40;padding:16px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .4s var(--ease),visibility .4s var(--ease)}
+.ov.on{opacity:1;visibility:visible;pointer-events:auto}
+.modal{background:var(--card);border-radius:24px;width:min(880px,100%);max-height:90vh;overflow:auto;padding:40px;position:relative;transform:translateY(22px) scale(.985);opacity:0;transition:transform .45s var(--ease),opacity .45s var(--ease)}
+.ov.on .modal{transform:translateY(0) scale(1);opacity:1}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.x{position:absolute;right:16px;top:12px;font-size:28px;line-height:1;padding:6px 10px}
+.top{display:flex;gap:32px}
+.top .ph{width:210px;aspect-ratio:210/297;flex:none;border-radius:8px}
+.info{display:flex;flex-direction:column;flex:1}
+.info h2{margin:0 0 6px;font-size:26px}
+.info p{margin:0;color:#888}
+.acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto;padding-top:20px}
+.body{margin:24px 0 20px;line-height:1.85;max-width:72ch;white-space:pre-line;font-size:15px}
+.cast{display:flex;gap:10px;flex-wrap:wrap}
+.cast-pill{padding:8px 18px;border-radius:999px;background:var(--gray);color:#fff;font-size:13px;font-weight:500}
+.cur-quote{padding:16px 20px;border-left:3px solid var(--red);background:rgba(255,0,1,.06);border-radius:0 12px 12px 0;font-size:15px;font-weight:600;margin:16px 0 0;line-height:1.65}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,32px);background:var(--gray);color:#fff;padding:12px 20px;border-radius:999px;opacity:0;transition:opacity .45s var(--ease),transform .45s var(--ease);z-index:60;pointer-events:none;border:1px solid #444}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* 우측 하단 플로팅 원형 장바구니 아이콘 버튼 (매점 전용) */
+.fab-cart{position:fixed;right:24px;bottom:calc(24px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;background:var(--gray);color:#fff;display:flex;align-items:center;justify-content:center;z-index:28;box-shadow:0 8px 24px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12)}
+.fab-cart:hover{background:var(--red);transform:translateY(-3px) scale(1.04)}
+.fab-cart svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fab-badge{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--red);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg)}
+.fab-cart:hover .fab-badge{background:#fff;color:var(--red)}
+
+/* 장바구니 & 검색 모달 UI */
+.cart-list{display:flex;flex-direction:column;gap:12px;margin:20px 0}
+.cart-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border:1px solid var(--line);border-radius:14px}
+.cart-row .c-info{flex:1;min-width:0}
+.cart-row .c-info b{display:block;font-size:15px;margin-bottom:2px}
+.cart-row .c-info span{font-size:13px;color:#888}
+.qty-box{display:flex;align-items:center;gap:8px}
+.qty-btn{padding:6px 12px;border-radius:999px;background:var(--gray);color:#fff;font-size:13px;font-weight:700}
+.qty-btn:hover{background:var(--red)}
+.cart-total-box{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;background:var(--gray);color:#fff;border-radius:16px;margin:20px 0}
+.cart-total-box b{font-size:22px;color:#fff}
+.search-input{width:100%;padding:12px 20px;border-radius:999px;border:1.5px solid var(--red);background:var(--bg);color:var(--fg);font:inherit;font-size:15px;outline:none;margin:12px 0 20px}
+.search-res{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.search-card{display:flex;flex-direction:column;gap:6px;cursor:pointer;text-align:left}
+.search-card .ph{aspect-ratio:108/152;border-radius:8px}
+.search-card b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.search-card small{font-size:11px;color:#888}
+
+/* 예매 */
+.bk{max-width:1100px;margin:0 auto;padding:76px 24px 100px;display:grid;grid-template-columns:1fr 320px;gap:32px;align-items:start}
+.bk.one{grid-template-columns:1fr;max-width:560px}
+.steps{grid-column:1/-1;display:flex;gap:8px}
+.steps div{flex:1;padding:10px 4px;border-bottom:3px solid var(--line);font-size:14px;color:#888;transition:border-color .4s var(--ease),color .4s var(--ease)}
+.steps div.on{border-color:var(--red);color:var(--fg);font-weight:700}
+.steps div.done{border-color:var(--gray);color:var(--fg)}
+.bk h3{margin:28px 0 12px;font-size:16px}
+.bk h3:first-child{margin-top:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:10px 16px;border-radius:999px;background:var(--gray);color:#fff;font-size:14px}
+.chip:hover{background:#3a3a3a}
+.chip.on{background:var(--red)}
+.shows{display:grid;gap:8px}
+.show{display:grid;grid-template-columns:80px 1fr auto;align-items:center;gap:12px;padding:16px 20px;border:1px solid var(--line);border-radius:12px;text-align:left}
+.show b{font-size:20px}
+.show em{font-style:normal;color:#888;font-size:13px}
+.show:hover{border-color:var(--gray)}
+.show.on{background:var(--gray);color:#fff;border-color:var(--red)}
+.show.on em{color:#ccc}
+.scr{width:76%;margin:0 auto 24px;padding:8px;text-align:center;font-size:12px;letter-spacing:.3em;background:var(--gray);color:#fff;border-radius:4px 4px 40px 40px/4px 4px 14px 14px}
+.row{display:flex;gap:4px;justify-content:center;margin-bottom:5px;align-items:center}
+.row i{width:18px;font-style:normal;font-size:11px;color:#888}
+.seat{width:clamp(18px,3.8vw,28px);aspect-ratio:1;border-radius:5px 5px 2px 2px;background:var(--gray);color:#fff;font-size:9px;padding:0}
+.seat:hover:not(:disabled){background:#555}
+.seat.gap{margin-right:14px}
+.seat.t{opacity:.15}
+.seat.on{background:var(--red)}
+.legend{display:flex;gap:16px;justify-content:center;margin-top:20px;font-size:12px;color:#888}
+.legend span:before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px;background:var(--gray)}
+.legend .a:before{background:var(--red)}
+.legend .t:before{opacity:.15}
+.sum{position:sticky;top:96px;background:var(--gray);color:#fff;border-radius:16px;padding:24px}
+.sum h4{margin:0 0 12px;font-size:20px}
+.sum p{margin:6px 0;color:#ccc;font-size:14px}
+.tot{font-size:26px;font-weight:700;margin:20px 0 16px;color:#fff}
+.cta{width:100%;padding:14px;border-radius:999px;background:var(--red);color:#fff;font-weight:700;font-size:16px}
+.cta:disabled{background:#555;color:#999}
+.tk{border:1px solid var(--line);border-radius:20px;overflow:hidden;margin-bottom:12px;background:var(--card)}
+.tk .hd{background:var(--red);color:#fff;padding:20px 24px}
+.tk .hd.store-hd{background:var(--gray)}
+.tk .hd small{opacity:.85}
+.tk .hd h2{margin:4px 0 0;font-size:22px}
+.tk .bd{padding:20px 24px;display:grid;grid-template-columns:90px 1fr;gap:10px 8px;font-size:14px}
+.tk .bd span{color:#888}
+.tk .bd.sep{border-top:2px dashed var(--line)}
+.empty{text-align:center;padding:60px 0;color:#888}
+
+/* 프로필 (1. 로그인 -> 2. 관람 및 이용 내역(한줄평·평점) -> 3. 찜한 영화 -> 4. 화면 테마 설정) */
+.pf-stack{max-width:860px;margin:0 auto;padding:76px 24px 110px;display:flex;flex-direction:column;gap:40px}
+.pf-box{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:32px}
+.pf-login-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center}
+.pf-field{display:flex;flex-direction:column;gap:10px}
+.pf-input{width:100%;padding:12px 18px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font:inherit;font-size:14px;outline:none;transition:border-color .35s var(--ease)}
+.pf-input:focus{border-color:var(--red)}
+.pf-card{background:var(--gray);color:#fff;border-radius:24px;padding:32px;display:flex;flex-direction:column;gap:22px}
+.pf-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.pf-user-left{display:flex;align-items:center;gap:12px}
+.pf-badge{padding:8px 16px;border-radius:999px;background:var(--red);color:#fff;font-weight:700;font-size:13px;flex:none}
+.pf-name{font-size:22px;font-weight:700;margin:0 0 4px}
+.pf-grade{font-size:13px;color:#bbb}
+.pf-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:18px 0;border-top:1px solid rgba(255,255,255,.12);border-bottom:1px solid rgba(255,255,255,.12);text-align:center}
+.pf-stats button{display:flex;flex-direction:column;align-items:center;width:100%}
+.pf-stats button:hover b{color:var(--red)}
+.pf-stats b{display:block;font-size:20px;margin-bottom:4px;transition:color .3s var(--ease)}
+.pf-stats span{font-size:12px;color:#aaa}
+.barcode{background:#fff;color:#111;border-radius:14px;padding:16px;text-align:center}
+.barcode .bars{height:40px;background:repeating-linear-gradient(90deg,#111 0 2px,#fff 2px 5px,#111 5px 9px,#fff 9px 11px,#111 11px 12px,#fff 12px 16px);margin-bottom:8px}
+.barcode small{font-size:12px;letter-spacing:.2em;font-weight:600;color:#333}
+.pf-sec h3{margin:0 0 16px;font-size:19px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.pf-hist-list{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pf-hist-card{border:1px solid var(--line);border-radius:16px;padding:18px 20px;background:var(--card);display:flex;flex-direction:column;gap:8px;transition:border-color .35s var(--ease),transform .35s var(--ease)}
+.pf-hist-card:hover{border-color:var(--red);transform:translateY(-2px)}
+.pf-hist-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pf-hist-tag{font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--red);color:#fff}
+.pf-hist-tag.snk{background:var(--gray)}
+.pf-hist-card h4{margin:2px 0 0;font-size:17px}
+.pf-hist-meta{font-size:13px;color:#888;line-height:1.5}
+.pf-my-rev{padding:10px 12px;border-radius:10px;background:rgba(255,0,1,.06);border-left:3px solid var(--red);font-size:13px;line-height:1.5}
+.pf-my-rev b{color:var(--red);margin-right:6px}
+.pf-hist-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto;padding-top:10px;border-top:1px solid var(--line);font-size:13px}
+.pf-hist-btns{display:flex;gap:6px}
+.pf-wish{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.pf-wish-item{display:flex;flex-direction:column;gap:8px}
+.pf-wish-item .ph{aspect-ratio:108/152;border-radius:8px;cursor:pointer}
+.pf-wish-item .w-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-wish-item .w-acts{display:flex;gap:6px}
+.pf-wish-item .w-acts button{flex:1;padding:8px 10px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--fg)}
+.pf-wish-item .w-acts button.go{background:var(--red);color:#fff;border:none}
+
+@media(max-width:850px){.curation-body,.pf-login-grid,.pf-hist-list{grid-template-columns:1fr}.curation-sub-grid,.pf-wish,.search-res{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:800px){.bk{grid-template-columns:1fr}.sum{position:static}}
+@media(max-width:700px){header{padding:0 12px;gap:8px}nav button{padding:5px 7px;font-size:12px}.logo-img{height:24px}.btn-back{left:12px}.top{flex-direction:column}.top .ph{width:60%}.modal{padding:24px}.stage{min-height:540px}.stage-track{height:380px;--s1:145px}.stage .ph[data-pos="-2"],.stage .ph[data-pos="2"]{opacity:0}.seat.gap{margin-right:8px}.show{grid-template-columns:64px 1fr auto}.fab-cart{right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px))}}
+</style>
 </head>
 <body>
+<header>
+  <button class="logo-btn" onclick="go('home')" aria-label="홈으로">
+    <img class="logo-img" src="img/logo.svg" alt="CGV" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+    <span style="display:none;font-size:20px;font-weight:700">CGV</span>
+  </button>
+  <button class="nav-search" onclick="openSearch()" aria-label="검색">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.2" y2="16.2"/></svg>
+  </button>
+  <nav>
+    <button data-n="my">내 예매/예약</button>
+    <button data-n="store">매점</button>
+    <button data-n="profile">프로필</button>
+  </nav>
+</header>
+<div class="backbar"><button class="btn-back hidden" id="btnBack" onclick="goBack()" aria-label="이전 페이지로">‹ 뒤로</button></div>
 
-  <!-- Fixed Header -->
-  <header>
-    <button class="logo-btn" onclick="go('home')" aria-label="홈으로">
-      <img class="logo-img" src="img/logo.svg" alt="CGV" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-      <span style="display:none;font-size:22px;font-weight:700">LOGO</span>
-    </button>
-    <nav>
-      <button data-n="my">내 예매/예약</button>
-      <button data-n="store">매점</button>
-      <button data-n="profile">프로필</button>
-    </nav>
-  </header>
-
-  <div class="backbar">
-    <button class="btn-back hidden" id="btnBack" onclick="goBack()" aria-label="이전 페이지로">‹ 뒤로</button>
-  </div>
-
-  <!-- 홈 페이지 -->
-  <section class="page" id="home">
-    <!-- 1. 메인 캐러셀 -->
-    <div class="stage">
-      <div class="stage-track" id="stageTrack"></div>
-    </div>
+<section class="page" id="home">
+  <div class="hero-wrap" id="heroWrap">
+    <div class="stage-bg" id="stageBg"></div>
+    <div class="stage-wave"></div>
+    <div class="stage-wave2"></div>
+    <div class="stage"><div class="stage-track" id="stageTrack"></div></div>
     <div class="ctl">
-      <button onclick="rot(-1)" aria-label="이전">‹ 이전</button>
+      <button onclick="manualRot(-1)" aria-label="이전">‹ 이전</button>
       <button onclick="go('movies')">전체 영화 보기</button>
       <button class="red" onclick="startBooking(cur)">예매하기</button>
-      <button onclick="rot(1)" aria-label="다음">다음 ›</button>
+      <button onclick="manualRot(1)" aria-label="다음">다음 ›</button>
     </div>
-
-    <!-- 2. 큐레이션 섹션 -->
-    <div class="curation-sec">
-      <div class="curation-head">
-        <h2>큐레이션</h2>
-        <button class="more-btn" onclick="go('movies')">큐레이션 더보기 +</button>
-      </div>
-      <div class="curation-body" id="curationBody"></div>
-    </div>
-
-    <!-- 3. 특별관 소개 섹션 -->
-    <div class="th" id="thHome" style="min-height:0;padding:80px 0 0"></div>
-  </section>
-
-  <!-- 영화 목록 페이지 -->
-  <section class="page" id="movies">
-    <div class="h">상영 중인 영화</div>
-    <div class="grid feat" id="mg"></div>
-  </section>
-
-  <!-- 특별관 페이지 -->
-  <section class="page" id="theater">
-    <div class="th" id="thPage"></div>
-  </section>
-
-  <!-- 매점 페이지 -->
-  <section class="page" id="store">
-    <div class="h">매점</div>
-    <div class="grid" id="sg" style="padding-top:24px"></div>
-  </section>
-
-  <!-- 예매 진행 페이지 -->
-  <section class="page" id="booking">
-    <div class="bk" id="bk"></div>
-  </section>
-
-  <!-- 내 예매/예약 목록 페이지 -->
-  <section class="page" id="my">
-    <div class="bk one" id="myList"></div>
-  </section>
-
-  <!-- 모달 & 토스트 -->
-  <div class="ov" id="ov">
-    <div class="modal" id="md" role="dialog" aria-modal="true"></div>
   </div>
-  <div class="toast" id="toast"></div>
+  <div class="curation-sec" id="curationSec">
+    <div class="curation-head"><h2>큐레이션</h2><button class="more-btn" onclick="go('movies')">큐레이션 더보기 +</button></div>
+    <div class="curation-body" id="curationBody"></div>
+  </div>
+  <div class="th" id="thHome"></div>
+</section>
 
-  <script>
-    /* Data Declarations (img/ 폴더의 실개 파일명 연동) */
-    const movies = [
-      { id: 0, t: "룩백", poster: "img/lookback.jpg", sub: "애니메이션 · 58분", d: "학교 신문에서 네컷 만화를 그리는 자신만만한 소녀 '후지노'와 방 안에 틀어박힌 외톨이 '쿄모토'. 만화가 세상의 전부였던 시절, 두 소녀의 눈부신 사계절이 채워지기 시작한다." },
-      { id: 1, t: "최종면접", poster: "img/Final Interview.jpg", sub: "스릴러 · 104분", d: "대기업 입사를 위한 마지막 단계, 밀실에서 펼쳐지는 기이하고 섬뜩한 최종 면접. 합격을 위해 서로를 배신하며 밝혀지는 서늘한 진실." },
-      { id: 2, t: "오디세이", poster: "img/The Odyssey.jpg", sub: "SF · 135분", d: "미지의 위성으로 떠나는 사상 최대의 우주 탐사 프로젝트. 신비로운 항로 끝에 기다리고 있는 인류의 원초적 기원과 절망." },
-      { id: 3, t: "Heart of the Beast", poster: "img/Heart of the Beast.jpg", sub: "액션 · 112분", d: "야수의 심장을 가진 자들의 격렬한 사투. 거대한 음모 속에서 생존하기 위한 주인공의 처절한 반격이 시작된다." },
-      { id: 4, t: "디거", poster: "img/Digger.jpg", sub: "범죄 · 126분", d: "땅속 깊은 곳에 숨겨진 보물을 파헤치는 미스터리 탐사원들. 그들이 발굴한 것은 상상을 초월하는 위험한 유물이었다." },
-      { id: 5, t: "치이카와", poster: "img/Chiikawa.jpg", sub: "애니메이션 · 85분", d: "작고 귀여운 치이카와와 친구들의 파란만장한 일상 대모험! 귀여움 뒤에 숨겨진 험난한 노동과 감동의 순간들." },
-      { id: 6, t: "집착", poster: "img/Obsession.jpg", sub: "미스터리 · 110분", d: "벗어날 수 없는 굴레와 빗나간 집착. 어둠 속에서 서서히 다가오는 기괴한 그림자의 정체는 무엇인가." },
-      { id: 7, t: "인턴", poster: "img/Intern.jpg", sub: "드라마 · 121분", d: "창업 1년 만에 성공을 거둔 패션 스타트업에 70세 시니어 인턴이 출근하면서 일어나는 가슴 따뜻한 성장 드라마." },
-      { id: 8, t: "부활남", poster: "img/red.jpg", sub: "액션 · 115분", d: "죽으면 3일 만에 부활하는 능력을 가진 청년. 거대한 악당 조직에 맞서 싸우는 통쾌하고 화려한 웹툰 원작 액션." },
-      { id: 9, t: "브루넬로", poster: "img/be.jpg", sub: "드라마 · 108분", d: "우아한 선구자의 미학과 철학. 예술과 삶의 경계에서 펼쳐지는 아름답고 깊이 있는 휴먼 스토리." },
-      { id: 10, t: "요루시카", poster: "img/yorushika.jpg", sub: "공연실황 · 95분", d: "감성적인 음악과 환상적인 그래픽 연출이 어우러진 특설 라이브 콘서트 실황 극장판." },
-      { id: 11, t: "HOPE", poster: "img/HOPE.jpg", sub: "드라마 · 118분", d: "절망의 끝에서 발견한 작은 희망의 빛. 서로의 아픔을 보듬어주며 다시 일어서는 가족의 이야기." },
-      { id: 12, t: "라라랜드", poster: "img/LA LA LAND.jpg", sub: "로맨스 · 127분", d: "꿈을 쫓는 청춘들의 열정과 사랑. 재즈 피아니스트 세바스찬과 배우 지망생 미아가 그려내는 아름다운 사계절." }
-    ];
+<section class="page" id="movies"><div class="h">상영 중인 영화</div><div class="grid feat" id="mg"></div></section>
 
-    const cast = ["배우 A", "배우 B", "배우 C", "감독"];
+<section class="page" id="theater">
+  <div class="tp"><div class="tp-in">
+    <h2>특별관 3D 체험</h2>
+    <p class="desc" id="tpDesc"></p>
+    <div class="v3" id="v3">
+      <div class="tip" id="tip"></div>
+      <div class="inb" id="inb"></div>
+      <div class="vbar" id="vbar"></div>
+      <div class="motion-hud hidden" id="motionHud">DX 모션 체어 작동 중</div>
+      <button class="vback hidden" id="vback" onclick="viewOver()">‹ 전체 좌석으로 돌아가기</button>
+    </div>
+    <div class="tabs" id="tpTabs"></div>
+    <div class="ctl" style="padding-bottom:60px">
+      <button class="hidden" id="btn4dxTest" onclick="toggle4DXMotion()">4DX 모션 체어 테스트</button>
+      <button class="red" onclick="bookHall()">이 상영관으로 예매하기</button>
+    </div>
+  </div></div>
+</section>
 
-    /* 매점 품목 10개 및 img/ 폴더 내 연동 이미지 설정 */
-    const items = [
-      { t: "더블 세트", poster: "img/Dubleset.png", sub: "13,000원", d: "팝콘 2 + 음료 2 구성의 대표 콤보 세트입니다." },
-      { t: "싱글 세트", poster: "img/Sset.png", sub: "8,500원", d: "혼자서 즐기기 좋은 팝콘 1 + 음료 1 세트입니다." },
-      { t: "라지 세트", poster: "img/largeset.png", sub: "15,000원", d: "풍성한 푸드 스낵과 음료가 포함된 넉넉한 세트입니다." },
-      { t: "맥주 세트", poster: "img/beerset.png", sub: "12,000원", d: "시원한 맥주와 어울리는 스낵 콤보 세트입니다." },
-      { t: "오징어 튀김", poster: "img/calamari.png", sub: "6,500원", d: "바삭하고 짭조름한 극장 인기 핑거푸드 오징어 튀김입니다." },
-      { t: "핫도그", poster: "img/hotdog.png", sub: "5,000원", d: "육즙 가득한 소시지가 들어간 갓 구운 핫도그입니다." },
-      { t: "나초", poster: "img/nacho.png", sub: "5,000원", d: "고소한 나초 칩과 치즈 소스의 환상적인 조합입니다." },
-      { t: "레몬 에이드", poster: "img/lemon.png", sub: "4,500원", d: "상큼하고 청량한 시트러스 레몬 에이드입니다." },
-      { t: "생맥주", poster: "img/beer.png", sub: "6,000원", d: "영화와 함께 즐기는 시원한 프리미엄 생맥주입니다." },
-      { t: "컵강정", poster: "img/cup.png", sub: "7,000원", d: "톡 쏘는 청량함의 대표 탄산음료와 닭강정의 만남!" }
-    ];
+<section class="page" id="store"><div class="h">매점</div><div class="grid" id="sg" style="padding-top:24px"></div></section>
+<section class="page" id="booking"><div class="bk" id="bk"></div></section>
+<section class="page" id="my"><div class="bk one" id="myList"></div></section>
+<section class="page" id="profile"><div class="pf-stack" id="pfWrap"></div></section>
 
-    /* Special Cinema Data */
-    const fmts = {
-      laser: ["laser", "선명한 레이저 영사로 더 깊은 검정과 밝은 화면", { w: "50%", h: "100%" }, "img/lookback.jpg"],
-      IMAX: ["IMAX", "더 크고 높은 화면비로 장면 가득 몰입", { w: "62%", h: "100%" }, "img/The Odyssey.jpg"],
-      SCREENX: ["SCREENX", "정면과 좌우 벽면까지 이어지는 270° 화면", { w: "60%", h: "85%" }, "img/LA LA LAND.jpg"],
-      "4DX": ["4DX", "움직이는 좌석과 바람·향기 효과", { w: "90%", h: "100%" }, "img/red.jpg"],
-      "Dolby Atmos": ["Dolby Atmos", "머리 위까지 움직이는 입체 사운드", { w: "60%", h: "100%" }, "img/yorushika.jpg"]
-    };
+<!-- 우측 하단 플로팅 원형 장바구니 아이콘 버튼 (매점 페이지에서만 표시) -->
+<button class="fab-cart hidden" id="fabCart" onclick="openCart()" aria-label="장바구니">
+  <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+  <span class="fab-badge hidden" id="fabBadge">0</span>
+</button>
 
-    const TABS = Object.keys(fmts);
-    const $ = s => document.querySelector(s);
-    let cur = 2, fmt = "IMAX", tt;
-    let curationCurId = 0; // 큐레이션 영역에서 현재 선택된 영화 index
+<div class="ov" id="ov"><div class="modal" id="md" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast"></div>
 
-    /* Image HTML Generator */
-    function renderPosterHtml(posterUrl, titleText) {
-      return `
-        <img src="${posterUrl}" alt="${titleText}" onerror="this.style.display='none'">
-        <span class="label">${titleText}</span>
-      `;
-    }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const movies=[
+{id:0,t:"룩백",poster:"img/lookback.jpg",sub:"애니메이션 · 58분",
+ d:"학교 신문에서 네컷 만화를 그리는 자신만만한 소녀 '후지노'와 방 안에 틀어박힌 외톨이 '쿄모토'. 만화가 세상의 전부였던 시절, 두 소녀의 눈부신 사계절이 채워지기 시작한다.",
+ curTag:"#필름소사이어티 · 창작자의 초상",
+ curHead:"그리는 행위 자체가 서로의 세계가 된 두 소녀의 눈부신 사계절",
+ curText:"후지모토 타츠키 원작의 단편이 스크린의 호흡을 얻어 더욱 짙은 여운을 남깁니다. 방 안의 쿄모토와 책상 앞의 후지노, 서로 다른 고독을 품은 두 소녀가 네 컷 만화라는 작은 프레임을 매개로 세상과 연결되는 과정은 창작이라는 행위의 본질을 가장 순수하게 비춥니다.\n\n빗속을 내달리는 후지노의 뒷모습과 스케치북 위로 번지는 연필의 사각거림은 오직 어두운 상영관의 밀도 높은 사운드와 대형 화면에서만 온전히 체감할 수 있는 영화적 순간입니다. 무언가를 끝까지 그려내고 써 내려간 경험이 있는 모든 관객에게 깊은 울림을 건네는 작품입니다."},
+{id:1,t:"최종면접",poster:"img/Final Interview.jpg",sub:"스릴러 · 104분",
+ d:"대기업 입사를 위한 마지막 단계, 밀실에서 펼쳐지는 기이하고 섬뜩한 최종 면접. 합격을 위해 서로를 배신하며 밝혀지는 서늘한 진실.",
+ curTag:"#필름소사이어티 · 밀실 심리극",
+ curHead:"질문 하나가 인간의 도덕적 경계를 무너뜨리는 104분의 서스펜스",
+ curText:"단 하나의 닫힌 공간, 다섯 명의 지원자, 그리고 보이지 않는 면접관. 화려한 액션이나 외부 사건 없이 오직 한정된 공간의 차가운 미장센과 인물들의 미세한 시선 흔들림만으로 극한의 긴장감을 구축한 밀실 심리 스릴러입니다.\n\n면접이 진행될수록 합격을 향한 열망은 생존 본능으로 변질되고, 완벽해 보였던 이력서 뒤편의 균열이 하나씩 드러납니다. 현대 경쟁 사회가 개인에게 요구하는 가면과 윤리적 딜레마를 날카로운 대사와 정교한 편집 리듬으로 해부한 각본의 힘이 압도적입니다."},
+{id:2,t:"오디세이",poster:"img/The Odyssey.jpg",sub:"SF · 135분",
+ d:"미지의 위성으로 떠나는 사상 최대의 우주 탐사 프로젝트. 신비로운 항로 끝에 기다리고 있는 인류의 원초적 기원과 절망.",
+ curTag:"#필름소사이어티 · 사변적 SF",
+ curHead:"침묵의 우주 한가운데서 마주한 인류 존재론에 대한 거대한 질문",
+ curText:"소모적인 우주 전투 대신 광활한 적막과 압도적인 스케일의 시각적 경이를 택한 정통 사변 SF 대작입니다. 미지의 위성 궤도에 진입하며 마주하는 기하학적 풍경은 인간 지성의 한계와 경외감을 동시에 일깨웁니다.\n\n무중력의 정적을 가르는 극저음 사운드 설계와 명암 대비가 극대화된 화면 연출이 관객을 탐사선 내부의 고립감 속으로 끌어당깁니다. 큰 스크린과 입체 음향 환경에서 감상할 때 진가가 배가되는 시네마틱 경험입니다."},
+{id:3,t:"Heart of the Beast",poster:"img/Heart of the Beast.jpg",sub:"액션 · 112분",
+ d:"야수의 심장을 가진 자들의 격렬한 사투. 거대한 음모 속에서 생존하기 위한 주인공의 처절한 반격이 시작된다.",
+ curTag:"#필름소사이어티 · 하드보일드 누아르",
+ curHead:"거친 숨결과 묵직한 타격감이 살아있는 정통 생존 누아르",
+ curText:"과장된 시각효과를 덜어내고 실제 로케이션의 거친 질감과 롱테이크 액션 시퀀스로 승부하는 하드보일드 작품입니다. 벼랑 끝에 몰린 인물이 선택할 수밖에 없는 처절한 생존 본능을 차갑고 절제된 톤의 촬영으로 포착했습니다.\n\n빛과 어둠이 교차하는 밤거리의 추격전과 인물의 내면적 고독을 담아낸 클로즈업이 어우러져, 단순한 장르적 쾌감을 넘어 고전 누아르 특유의 비장미를 완성합니다."},
+{id:4,t:"디거",poster:"img/Digger.jpg",sub:"범죄 · 126분",
+ d:"땅속 깊은 곳에 숨겨진 보물을 파헤치는 미스터리 탐사원들. 그들이 발굴한 것은 상상을 초월하는 위험한 유물이었다.",
+ curTag:"#필름소사이어티 · 미스터리 추적",
+ curHead:"땅속 깊은 어둠 속에서 발굴된 것은 유물이 아닌 인간의 욕망이었다",
+ curText:"지하 갱도라는 폐쇄적 공간이 주는 물리적 압박감과 점층적으로 고조되는 미스터리가 돋보이는 범죄 스릴러입니다. 흙먼지와 습기로 가득한 지하 세계의 공간감이 스크린 너머까지 생생하게 전달됩니다.\n\n발굴이 깊어질수록 동료 간의 신뢰는 의심으로 바뀌고, 감춰져 있던 각자의 목적이 수면 위로 떠오릅니다. 어둠 속에서 흔들리는 랜턴 불빛처럼 위태로운 인간 심리를 치밀하게 따라갑니다."},
+{id:5,t:"치이카와",poster:"img/Chiikawa.jpg",sub:"애니메이션 · 85분",
+ d:"작고 귀여운 치이카와와 친구들의 파란만장한 일상 대모험! 귀여움 뒤에 숨겨진 험난한 노동과 감동의 순간들.",
+ curTag:"#필름소사이어티 · 우화적 애니메이션",
+ curHead:"작고 연약한 존재들이 서로의 곁을 지키며 건네는 다정한 위로",
+ curText:"사랑스러운 작화 이면에 녹록지 않은 현실의 무게와 노동, 그럼에도 포기하지 않는 연대의 가치를 담아낸 극장판 애니메이션입니다. 작은 존재들이 거대한 세계에 맞서 하루를 살아내는 모습이 묘한 페이소스를 자아냅니다.\n\n웃음 뒤에 찾아오는 뭉클한 여운과 친구를 향한 조건 없는 다정함이 세대를 불문하고 따뜻한 공감을 이끌어냅니다."},
+{id:6,t:"집착",poster:"img/Obsession.jpg",sub:"미스터리 · 110분",
+ d:"벗어날 수 없는 굴레와 빗나간 집착. 어둠 속에서 서서히 다가오는 기괴한 그림자의 정체는 무엇인가.",
+ curTag:"#필름소사이어티 · 심리 미스터리",
+ curHead:"일상의 균열 사이로 스며드는 서늘하고 집요한 시선의 기록",
+ curText:"사소한 호기심이 통제 불가능한 집착으로 변모하는 과정을 섬뜩한 심리 묘사로 그려낸 미스터리 작품입니다. 반복되는 일상의 사운드와 기묘하게 어긋난 카메라 구도가 관객의 불안을 서서히 증폭시킵니다.\n\n진실에 가까워질수록 오히려 현실의 감각이 흐려지는 서사 구조가 마지막 순간까지 긴장의 끈을 놓지 못하게 만듭니다."},
+{id:7,t:"인턴",poster:"img/Intern.jpg",sub:"드라마 · 121분",
+ d:"창업 1년 만에 성공을 거둔 패션 스타트업에 70세 시니어 인턴이 출근하면서 일어나는 가슴 따뜻한 성장 드라마.",
+ curTag:"#필름소사이어티 · 세대 공감 드라마",
+ curHead:"속도의 시대에 경험과 품격이 건네는 가장 따뜻한 쉼표",
+ curText:"빠르게 변하는 디지털 스타트업의 분주한 일상 속에 클래식한 수트 차림의 70세 시니어 인턴이 합류하며 벌어지는 유쾌하고 사려 깊은 휴먼 드라마입니다.\n\n세대를 뛰어넘는 진심 어린 경청과 존중이 어떻게 서로의 삶을 단단하게 지탱해 주는지 보여주며, 바쁜 일상에 지친 관객에게 기분 좋은 온기를 선물합니다."},
+{id:8,t:"부활남",poster:"img/red.jpg",sub:"액션 · 115분",
+ d:"죽으면 3일 만에 부활하는 능력을 가진 청년. 거대한 악당 조직에 맞서 싸우는 통쾌하고 화려한 웹툰 원작 액션."},
+{id:9,t:"브루넬로",poster:"img/be.jpg",sub:"드라마 · 108분",
+ d:"우아한 선구자의 미학과 철학. 예술과 삶의 경계에서 펼쳐지는 아름답고 깊이 있는 휴먼 스토리."},
+{id:10,t:"요루시카",poster:"img/yorushika.jpg",sub:"공연실황 · 95분",
+ d:"감성적인 음악과 환상적인 그래픽 연출이 어우러진 특설 라이브 콘서트 실황 극장판."},
+{id:11,t:"HOPE",poster:"img/HOPE.jpg",sub:"드라마 · 118분",
+ d:"절망의 끝에서 발견한 작은 희망의 빛. 서로의 아픔을 보듬어주며 다시 일어서는 가족의 이야기."},
+{id:12,t:"라라랜드",poster:"img/LA LA LAND.jpg",sub:"로맨스 · 127분",
+ d:"꿈을 쫓는 청춘들의 열정과 사랑. 재즈 피아니스트 세바스찬과 배우 지망생 미아가 그려내는 아름다운 사계절."}];
 
-    /* Helper Utilities */
-    function go(p) {
-      location.hash = p;
-    }
+/* 다른 관람객 기본 한줄평 & 평점 데이터 */
+const BASE_REVIEWS=[
+  {movieId:0,author:"시네필_민수",rating:5,date:"2026.11.20",text:"연필 선 하나하나가 살아 움직이는 느낌. 엔딩 크레딧 올라갈 때까지 자리를 못 떴어요."},
+  {movieId:0,author:"아카이브_J",rating:5,date:"2026.11.22",text:"짧은 러닝타임 안에 창작의 기쁨과 상실이 완벽하게 응축되어 있습니다."},
+  {movieId:1,author:"필름노트",rating:4,date:"2026.11.19",text:"한정된 공간에서 대사만으로 104분을 꽉 채우는 긴장감이 대단합니다."},
+  {movieId:1,author:"스릴러매니아",rating:5,date:"2026.11.24",text:"반전이 드러나는 순간 상영관 전체가 숨을 죽였어요. 몰입감 최고."},
+  {movieId:2,author:"IMAX러버",rating:5,date:"2026.11.21",text:"우주의 고요함과 극저음 사운드가 압도적입니다. 꼭 큰 화면으로 보세요."},
+  {movieId:2,author:"궤도탐사자",rating:4,date:"2026.11.25",text:"철학적인 여운이 길게 남는 정통 SF. 시각적 완성도가 놀랍습니다."},
+  {movieId:3,author:"액션키드",rating:4,date:"2026.11.18",text:"타격감과 롱테이크 추격전이 거칠고 생생해서 시간 가는 줄 몰랐네요."},
+  {movieId:4,author:"미스터리헌터",rating:5,date:"2026.11.23",text:"지하 갱도의 폐쇄감과 점점 드러나는 인간의 욕망이 소름 돋습니다."},
+  {movieId:5,author:"작은별",rating:5,date:"2026.11.24",text:"귀여움 뒤에 숨은 다정한 위로에 눈물이 핑 돌았어요."},
+  {movieId:6,author:"심야관객",rating:4,date:"2026.11.20",text:"음향 연출이 기묘해서 마지막까지 긴장을 놓을 수 없었습니다."},
+  {movieId:7,author:"클래식수트",rating:5,date:"2026.11.22",text:"지칠 때마다 꺼내 보고 싶은 따뜻한 어른의 품격과 위로."},
+  {movieId:8,author:"웹툰원작팬",rating:4,date:"2026.11.21",text:"원작의 속도감과 액션을 스크린에 시원하게 옮겨 담았습니다."},
+  {movieId:9,author:"미학산책",rating:5,date:"2026.11.19",text:"장인정신과 삶의 철학이 한 편의 예술처럼 펼쳐집니다."},
+  {movieId:10,author:"라이브홀릭",rating:5,date:"2026.11.25",text:"극장 사운드로 들으니 실제 공연장 맨 앞줄에 있는 기분이에요."},
+  {movieId:11,author:"온기나눔",rating:4,date:"2026.11.23",text:"가족의 의미를 다시 생각하게 만드는 묵직하고 따뜻한 드라마."},
+  {movieId:12,author:"재즈나잇",rating:5,date:"2026.11.24",text:"언제 다시 극장에서 봐도 오프닝과 엔딩 시퀀스는 전율이 일어요."}
+];
 
-    function toast(m) {
-      const t = $("#toast");
-      t.textContent = m;
-      t.classList.add("on");
-      clearTimeout(tt);
-      tt = setTimeout(() => t.classList.remove("on"), 2200);
-    }
+const CURATED_LIST=movies.slice(0,8);
+const cast=["주연 A","주연 B","조연 C","감독"];
+const items=[
+{t:"더블 세트",price:13000,poster:"img/Dubleset.png",sub:"13,000원",d:"팝콘 2 + 음료 2 구성의 대표 콤보 세트입니다."},
+{t:"싱글 세트",price:8500,poster:"img/Sset.png",sub:"8,500원",d:"혼자서 즐기기 좋은 팝콘 1 + 음료 1 세트입니다."},
+{t:"라지 세트",price:15000,poster:"img/largeset.png",sub:"15,000원",d:"풍성한 푸드 스낵과 음료가 포함된 넉넉한 세트입니다."},
+{t:"맥주 세트",price:12000,poster:"img/beerset.png",sub:"12,000원",d:"시원한 맥주와 어울리는 스낵 콤보 세트입니다."},
+{t:"오징어 튀김",price:6500,poster:"img/calamari.png",sub:"6,500원",d:"바삭하고 짭조름한 극장 인기 핑거푸드 오징어 튀김입니다."},
+{t:"핫도그",price:5000,poster:"img/hotdog.png",sub:"5,000원",d:"육즙 가득한 소시지가 들어간 갓 구운 핫도그입니다."},
+{t:"나초",price:5000,poster:"img/nacho.png",sub:"5,000원",d:"고소한 나초 칩과 치즈 소스의 환상적인 조합입니다."},
+{t:"레몬 에이드",price:4500,poster:"img/lemon.png",sub:"4,500원",d:"상큼하고 청량한 시트러스 레몬 에이드입니다."},
+{t:"생맥주",price:6000,poster:"img/beer.png",sub:"6,000원",d:"영화와 함께 즐기는 시원한 프리미엄 생맥주입니다."},
+{t:"컵강정",price:7000,poster:"img/cup.png",sub:"7,000원",d:"톡 쏘는 청량함의 대표 탄산음료와 닭강정의 만남!"}];
 
-    const PAGES = ["home", "movies", "theater", "store", "booking", "my"];
-    const page = () => {
-      const p = location.hash.slice(1);
-      return PAGES.includes(p) ? p : "home";
-    };
+const fmts={
+laser:["laser","선명한 레이저 영사로 더 깊은 검정과 밝은 화면",{w:"64%",h:"100%"},0xe11d48],
+IMAX:["IMAX","더 크고 높은 화면비로 장면 가득 몰입",{w:"78%",h:"100%"},0x2b7fff],
+SCREENX:["SCREENX","정면과 좌우 벽면까지 이어지는 270° 화면",{w:"62%",h:"88%"},0x38bdf8],
+"4DX":["4DX","움직이는 모션 체어와 바람·향기 효과",{w:"92%",h:"100%"},0xff2a2a],
+"Dolby Atmos":["Dolby Atmos","머리 위까지 움직이는 입체 사운드",{w:"74%",h:"100%"},0xf59e0b]};
+const TABS=Object.keys(fmts);
+const $=s=>document.querySelector(s);
+let cur=2,fmt="IMAX",tt,curationIdx=0,stageTimer=null,stageHover=false,curTimer=null,curHover=false,curSwitchLock=null;
+let WISH=[];try{WISH=JSON.parse(localStorage.getItem("cgvWish")||"[]")}catch(e){}
+let CART=[];try{CART=JSON.parse(localStorage.getItem("cgvCart")||"[]")}catch(e){}
+let USER_REVIEWS=[];try{USER_REVIEWS=JSON.parse(localStorage.getItem("cgvReviews")||"[]")}catch(e){}
+let THEME="auto";try{THEME=localStorage.getItem("cgvTheme")||"auto"}catch(e){}
+let USER=null;try{USER=JSON.parse(localStorage.getItem("cgvUser")||"null")}catch(e){}
+let PICKUP_OPT={branch:"CGV 용산아이파크몰 · 6층 매점",when:"지금 바로 픽업",pay:"신용/체크카드"};
 
-    /* Routing */
-    function route() {
-      const p = page();
-      document.querySelectorAll(".page").forEach(e => e.classList.toggle("on", e.id === p));
-      document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.n === p));
-      $("#btnBack").classList.toggle("hidden", p === "home");
-      
-      closeM();
-      scrollTo(0, 0);
+const posterHtml=(u,t)=>`<img src="${u}" alt="${t}" onerror="this.style.display='none'"><span class="label">${t}</span>`;
+function go(p){location.hash=p}
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("on"),2400)}
+const PAGES=["home","movies","theater","store","booking","my","profile"];
+const page=()=>{const p=location.hash.slice(1);return PAGES.includes(p)?p:"home"};
 
-      if (p === "booking") renderBooking();
-      if (p === "my") renderMy();
-    }
+/* 한줄평 · 평점 헬퍼 */
+const starsStr=n=>"★".repeat(n)+"☆".repeat(5-n);
+function getMovieReviews(movieId){
+  const mine=USER_REVIEWS.filter(r=>r.movieId===movieId).map(r=>({...r,isMine:true}));
+  const others=BASE_REVIEWS.filter(r=>r.movieId===movieId).map(r=>({...r,isMine:false}));
+  return [...mine,...others];
+}
+function getMovieRatingSummary(movieId){
+  const list=getMovieReviews(movieId);
+  if(!list.length)return{avg:"0.0",count:0,list};
+  const sum=list.reduce((a,b)=>a+b.rating,0);
+  return{avg:(sum/list.length).toFixed(1),count:list.length,list};
+}
+function renderReviewsBlock(movieId,returnTo){
+  const {avg,count,list}=getMovieRatingSummary(movieId);
+  const myTicket=MY.find(x=>x.type!=="store"&&x.movieId===movieId)||MY.find(x=>x.type!=="store"&&x.movie===movies[movieId]?.t);
+  const writeBtn=myTicket
+    ?`<button class="pill-btn go" style="padding:7px 16px;font-size:13px" onclick="openReviewModal('${myTicket.no}','${returnTo}')">${USER_REVIEWS.some(r=>r.ticketNo===myTicket.no)?"내 한줄평 수정":"한줄평·평점 작성"}</button>`
+    :`<button class="pill-btn" style="padding:7px 16px;font-size:13px" onclick="startBooking(${movieId})">예매 후 한줄평 작성</button>`;
 
-    function goBack() {
-      if (page() === "booking" && B.step > 1 && B.step < 4) {
-        B.step--;
-        renderBooking();
-        scrollTo(0, 0);
-      } else if (page() === "booking" && B.step === 4) {
-        go("home");
-      } else if (history.length > 1) {
-        history.back();
-      } else {
-        go("home");
-      }
-    }
-
-    addEventListener("hashchange", route);
-
-    document.querySelectorAll("nav button").forEach(b => {
-      b.onclick = () => {
-        const n = b.dataset.n;
-        if (n === "store" || n === "my") go(n);
-        else toast("프로필은 로그인 후 확인할 수 있어요");
-      };
-    });
-
-    /* Carousel Logic */
-    function initStage() {
-      const tr = $("#stageTrack");
-      tr.innerHTML = "";
-      movies.forEach((m, i) => {
-        const b = document.createElement("button");
-        b.className = "ph";
-        b.innerHTML = renderPosterHtml(m.poster, m.t);
-        b.setAttribute("aria-label", m.t);
-        b.dataset.id = i;
-        tr.appendChild(b);
-      });
-      updateStage();
-    }
-
-    function updateStage() {
-      document.querySelectorAll("#stageTrack .ph").forEach(c => {
-        const i = +c.dataset.id;
-        let d = i - cur;
-        let h = Math.floor(movies.length / 2);
-
-        if (d < -h) d += movies.length;
-        if (d > h) d -= movies.length;
-
-        c.dataset.pos = d;
-        c.onclick = () => d === 0 ? openM(movies[i], "영화") : (cur = i, updateStage());
-      });
-    }
-
-    function rot(d) {
-      cur = (cur + d + movies.length) % movies.length;
-      updateStage();
-    }
-
-    addEventListener("keydown", e => {
-      if (e.key === "Escape") closeM();
-      if (page() === "home" && !$("#ov").classList.contains("on")) {
-        if (e.key === "ArrowLeft") rot(-1);
-        if (e.key === "ArrowRight") rot(1);
-      }
-    });
-
-    /* Curation Section Logic */
-    function drawCuration() {
-      const el = $("#curationBody");
-      if (!el) return;
-
-      const feat = movies[curationCurId];
-      const subList = movies.slice(0, 5); // 큐레이션 리스트 (상위 5개)
-
-      el.innerHTML = `
-        <div class="curation-left">
-          <div class="poster-box ph">
-            <div class="badge-tag">CGV SPECIAL</div>
-            ${renderPosterHtml(feat.poster, feat.t)}
-          </div>
-          <div class="actions">
-            <button onclick="openM(movies[${feat.id}], '영화')">상세정보</button>
-            <button class="btn-book" onclick="startBooking(${feat.id})">예매</button>
-          </div>
-        </div>
-
-        <div class="curation-right">
-          <div class="curation-info">
-            <div class="tag-title">#필름소사이어티</div>
-            <h3>${feat.t}</h3>
-            <div class="sub-text">${feat.sub}</div>
-            <p class="desc-text">${feat.d}</p>
-          </div>
-
-          <div class="curation-sub-grid">
-            ${subList.map(m => `
-              <div class="curation-sub-card${m.id === feat.id ? " on" : ""}" onclick="selectCurationMovie(${m.id})">
-                <div class="poster-box ph">
-                  ${renderPosterHtml(m.poster, m.t)}
-                </div>
-                <div class="title">${m.t}</div>
-              </div>
-            `).join("")}
-          </div>
-        </div>
-      `;
-    }
-
-    function selectCurationMovie(id) {
-      curationCurId = id;
-      drawCuration();
-    }
-
-    /* Theater Mounts */
-    function mounts() {
-      document.querySelectorAll(".th").forEach(el => {
-        const home = el.id === "thHome";
-        el.innerHTML = `
-          <div class="stagebox">
-            <div class="wing l"><img class="wing-img" src="" alt=""></div>
-            <div class="screen" ${home ? 'role="button" tabindex="0" aria-label="특별관 자세히 보기"' : ''}>
-              <img class="screen-img" src="" alt="" onerror="this.style.display='none'">
-              <span class="screen-txt"></span>
-            </div>
-            <div class="wing r"><img class="wing-img" src="" alt=""></div>
-          </div>
-          <div class="desc"></div>
-          <div class="tabs"></div>
-        `;
-        const sc = el.querySelector(".screen");
-        const t = el.querySelector(".tabs");
-
-        TABS.forEach(k => {
-          const b = document.createElement("button");
-          b.textContent = k;
-          b.dataset.k = k;
-          b.onclick = () => showT(k);
-          t.appendChild(b);
-        });
-
-        if (home) {
-          sc.style.cursor = "pointer";
-          sc.onclick = () => go("theater");
-          sc.onkeydown = e => { if (e.key === "Enter") go("theater"); };
-        }
-      });
-    }
-
-    function showT(k) {
-      fmt = k;
-      const f = fmts[k];
-      document.querySelectorAll(".th").forEach(el => {
-        const s = el.querySelector(".screen");
-        const scImg = el.querySelector(".screen-img");
-        const scTxt = el.querySelector(".screen-txt");
-        const wings = el.querySelectorAll(".wing-img");
-
-        s.style.setProperty("--w", f[2].w);
-        s.style.setProperty("--h", f[2].h);
-        
-        scTxt.textContent = f[0];
-        scImg.src = f[3];
-        scImg.style.display = "block";
-        wings.forEach(w => w.src = f[3]);
-
-        el.classList.toggle("sx", k === "SCREENX");
-        el.querySelector(".desc").textContent = f[1];
-        el.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.k === k));
-      });
-    }
-
-    /* Grids */
-    function drawGrid(el, list, label) {
-      el.innerHTML = "";
-      list.forEach((m, i) => {
-        const b = document.createElement("button");
-        b.className = "ph" + (label === "영화" && i === 2 ? " big" : "");
-        b.innerHTML = renderPosterHtml(m.poster, m.t);
-        b.onclick = () => openM(m, label);
-        el.appendChild(b);
-      });
-    }
-
-    /* Modal Operations */
-    function openM(m, label) {
-      const isM = label === "영화";
-      const acts = isM ? ["예매", "찜", "공유", "예고편"] : ["담기", "찜", "공유", "주문"];
-
-      $("#md").innerHTML = `
-        <button class="x" aria-label="닫기" onclick="closeM()">×</button>
-        <div class="top">
-          <div class="ph">${renderPosterHtml(m.poster, m.t)}</div>
-          <div class="info">
-            <h2>${m.t}</h2>
-            <p>${m.sub}</p>
-            <div class="acts">
-              ${acts.map(a => `<button class="circ${a === "예매" ? " go" : ""}" data-a="${a}">${a}</button>`).join("")}
-            </div>
-          </div>
-        </div>
-        <p class="body">${m.d}</p>
-        <div class="cast">
-          ${(isM ? cast : ["옵션 1", "옵션 2", "옵션 3", "옵션 4"]).map(c => `<div><div class="circ"></div>${c}</div>`).join("")}
-        </div>
-      `;
-
-      $("#md").querySelectorAll("[data-a]").forEach(b => {
-        b.onclick = () => {
-          const a = b.dataset.a;
-          if (a === "예매") {
-            startBooking(m.id);
-          } else if (a === "찜") {
-            b.classList.toggle("on");
-            toast(b.classList.contains("on") ? "찜했어요" : "찜을 취소했어요");
-          } else if (a === "주문" || a === "담기") {
-            toast(`${m.t} ${a === "주문" ? "주문을 시작해요" : "장바구니에 담았어요"}`);
-          } else if (a === "공유") {
-            toast("링크를 복사했어요");
-          } else {
-            toast("예고편을 불러오는 중이에요");
-          }
-        };
-      });
-
-      $("#ov").classList.add("on");
-      $("#md .x").focus();
-    }
-
-    function closeM() {
-      $("#ov").classList.remove("on");
-    }
-
-    $("#ov").onclick = e => {
-      if (e.target.id === "ov") closeM();
-    };
-
-    /* Virtual Booking Module */
-    const B = { step: 1, movie: 2, day: 0, show: null, seats: [], pay: "신용/체크카드" };
-    let MY = [];
-
-    try {
-      MY = JSON.parse(localStorage.getItem("cgvMy") || "[]");
-    } catch (e) {}
-
-    const days = [...Array(7)].map((_, i) => {
-      const d = new Date();
-      d.setDate(d.getDate() + i);
-      return {
-        l: `${d.getMonth() + 1}/${d.getDate()}`,
-        w: "일월화수목금토"[d.getDay()]
-      };
-    });
-
-    const TIMES = ["10:20", "13:05", "16:10", "19:30", "22:10"];
-    const SURCH = { laser: 2000, IMAX: 4000, SCREENX: 3000, "4DX": 5000, "Dolby Atmos": 3000 };
-    const ROWS = "ABCDEFGH", COLS = 12;
-
-    const won = n => n.toLocaleString() + "원";
-    const shows = () => TIMES.map((t, n) => ({ t, n, hall: TABS[(n + B.day) % 5] }));
-
-    const isTaken = (s, r, c) => ((r + 1) * 7 + (c + 1) * 13 + B.day * 3 + s.n * 5 + B.movie) % 5 === 0;
-
-    const left = s => {
-      let k = 0;
-      for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < COLS; c++) {
-          if (!isTaken(s, r, c)) k++;
-        }
-      }
-      return k;
-    };
-
-    function startBooking(i) {
-      Object.assign(B, { step: 1, movie: i, day: 0, show: null, seats: [] });
-      closeM();
-      if (page() === "booking") renderBooking();
-      else go("booking");
-    }
-
-    function pick(k, v) {
-      if (k === "movie") { B.movie = v; B.show = null; B.seats = []; }
-      if (k === "day") { B.day = v; B.show = null; B.seats = []; }
-      if (k === "show") { B.show = shows()[v]; B.seats = []; }
-      if (k === "pay") B.pay = v;
-      renderBooking();
-    }
-
-    function seat(id) {
-      const i = B.seats.indexOf(id);
-      if (i >= 0) {
-        B.seats.splice(i, 1);
-      } else if (B.seats.length >= 4) {
-        return toast("최대 4석까지 선택할 수 있어요");
-      } else {
-        B.seats.push(id);
-      }
-      renderBooking();
-    }
-
-    function next() {
-      if (B.step < 3) {
-        B.step++;
-        renderBooking();
-        scrollTo(0, 0);
-        return;
-      }
-      const m = movies[B.movie];
-      const price = 14000 + SURCH[B.show.hall];
-
-      B.done = {
-        no: "CGV" + String(Date.now()).slice(-8),
-        movie: m.t,
-        date: `${days[B.day].l} (${days[B.day].w})`,
-        time: B.show.t,
-        hall: B.show.hall,
-        seats: [...B.seats].sort(),
-        total: price * B.seats.length,
-        pay: B.pay
-      };
-
-      MY.unshift(B.done);
-      try {
-        localStorage.setItem("cgvMy", JSON.stringify(MY));
-      } catch (e) {}
-
-      B.step = 4;
-      renderBooking();
-      scrollTo(0, 0);
-    }
-
-    const ticket = t => `
-      <div class="tk">
-        <div class="hd">
-          <small>${t.date} ${t.time}</small>
-          <h2>${t.movie}</h2>
-        </div>
-        <div class="bd">
-          <span>상영관</span><b>${t.hall}관</b>
-          <span>좌석</span><b>${t.seats.join(", ")}</b>
-          <span>결제금액</span><b>${won(t.total)}</b>
-        </div>
-        <div class="bd sep">
-          <span>예매번호</span><b>${t.no}</b>
-          <span>결제수단</span><b>${t.pay}</b>
-        </div>
+  return `<div class="rev-sec">
+    <div class="rev-sec-head">
+      <h4>관람객 한줄평 · 평점 <span class="rating-pill">★ ${avg} (${count}명)</span></h4>
+      ${writeBtn}
+    </div>
+    <div class="rev-list">${list.map(r=>`<div class="rev-card${r.isMine?" mine":""}">
+      <div class="rev-card-top">
+        <span><b style="color:var(--fg)">${r.author}</b>${r.isMine?" · 내 관람평":""} · ${r.date}</span>
+        <span class="stars">${starsStr(r.rating)} (${r.rating}.0)</span>
       </div>
-    `;
+      <p>${r.text}</p>
+    </div>`).join("")}</div>
+  </div>`;
+}
 
-    function renderBooking() {
-      const el = $("#bk");
-      const m = movies[B.movie];
-      const s = B.show;
-      const price = s ? 14000 + SURCH[s.hall] : 0;
-      const total = price * B.seats.length;
+let draftRating=5;
+function openReviewModal(ticketNo,returnTo="profile"){
+  const t=MY.find(x=>x.no===ticketNo);if(!t)return;
+  const movieId=t.movieId!=null?t.movieId:movies.findIndex(m=>m.t===t.movie);
+  const existing=USER_REVIEWS.find(r=>r.ticketNo===ticketNo);
+  draftRating=existing?existing.rating:5;
+  const initialText=existing?existing.text:"";
 
-      const steps = ["영화·시간", "좌석", "결제", "완료"]
-        .map((x, i) => `<div class="${B.step === i + 1 ? "on" : i + 1 < B.step ? "done" : ""}">${i + 1}. ${x}</div>`)
-        .join("");
+  $("#md").innerHTML=`<button class="x" aria-label="닫기" onclick="closeM()">×</button>
+  <span style="font-size:12px;font-weight:700;color:var(--red)">실관람객 평점 · 한줄평</span>
+  <h2 style="margin:6px 0 4px;font-size:24px">${t.movie}</h2>
+  <p style="margin:0;color:#888;font-size:13px">${t.date} ${t.time} · ${t.hall}관 (${t.seats.join(", ")})</p>
+  <h4 style="margin:22px 0 6px;font-size:15px">별점 선택</h4>
+  <div class="star-picker" id="starPicker">
+    ${[1,2,3,4,5].map(n=>`<button type="button" class="star-btn${draftRating===n?" on":""}" onclick="setDraftRating(${n})">★ ${n}점</button>`).join("")}
+  </div>
+  <h4 style="margin:12px 0 8px;font-size:15px">한줄평 작성</h4>
+  <input class="search-input" id="revInput" type="text" maxlength="100" value="${initialText.replace(/"/g,"&quot;")}" placeholder="영화에 대한 솔직한 한줄평을 남겨주세요 (최대 100자)">
+  <div class="ctl" style="padding:12px 0 0;justify-content:flex-end">
+    ${existing?`<button type="button" onclick="deleteReview('${ticketNo}','${returnTo}')">삭제</button>`:""}
+    <button type="button" class="red" onclick="saveReview('${ticketNo}',${movieId},'${returnTo}')">등록하기</button>
+  </div>`;
+  $("#ov").classList.add("on");
+  setTimeout(()=>$("#revInput")?.focus(),60);
+}
+function setDraftRating(n){
+  draftRating=n;
+  document.querySelectorAll("#starPicker .star-btn").forEach((b,i)=>b.classList.toggle("on",i+1===n));
+}
+function saveReview(ticketNo,movieId,returnTo){
+  const text=($("#revInput")?.value||"").trim();
+  if(!text)return toast("한줄평 내용을 입력해 주세요");
+  const author=USER?.name||"CGV 관람객";
+  const now=new Date();
+  const date=`${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,"0")}.${String(now.getDate()).padStart(2,"0")}`;
+  const idx=USER_REVIEWS.findIndex(r=>r.ticketNo===ticketNo);
+  const entry={ticketNo,movieId,author,rating:draftRating,date,text};
+  if(idx>=0)USER_REVIEWS[idx]=entry;
+  else USER_REVIEWS.unshift(entry);
+  try{localStorage.setItem("cgvReviews",JSON.stringify(USER_REVIEWS))}catch(e){}
+  toast("한줄평과 평점이 등록되었어요!");
+  refreshCurationRating();
+  if(page()==="profile")renderProfile();
+  if(page()==="my")renderMy();
+  if(returnTo==="detail"&&movieId>=0)openM(movies[movieId],"영화");
+  else if(returnTo==="curation"&&movieId>=0)openCurationDetail(movieId);
+  else closeM();
+}
+function deleteReview(ticketNo,returnTo){
+  const idx=USER_REVIEWS.findIndex(r=>r.ticketNo===ticketNo);
+  const movieId=idx>=0?USER_REVIEWS[idx].movieId:-1;
+  if(idx>=0)USER_REVIEWS.splice(idx,1);
+  try{localStorage.setItem("cgvReviews",JSON.stringify(USER_REVIEWS))}catch(e){}
+  toast("한줄평을 삭제했어요");
+  refreshCurationRating();
+  if(page()==="profile")renderProfile();
+  if(page()==="my")renderMy();
+  if(returnTo==="detail"&&movieId>=0)openM(movies[movieId],"영화");
+  else if(returnTo==="curation"&&movieId>=0)openCurationDetail(movieId);
+  else closeM();
+}
 
-      el.classList.toggle("one", B.step === 4);
+function applyTheme(t){
+  THEME=t;
+  if(t==="auto")document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme",t);
+  try{localStorage.setItem("cgvTheme",t)}catch(e){}
+  if(page()==="profile")renderProfile();
+}
+applyTheme(THEME);
 
-      if (B.step === 4) {
-        el.innerHTML = `
-          <div class="steps">${steps}</div>
-          <div>
-            <h2 style="margin:0 0 6px">예매가 완료됐어요 🎬</h2>
-            <p style="color:#888;margin:0 0 20px">가상 예매입니다. 실제 결제는 이루어지지 않아요.</p>
-            ${ticket(B.done)}
-            <div class="ctl" style="padding:20px 0 0">
-              <button onclick="go('my')">내 예매 보기</button>
-              <button class="red" onclick="go('home')">홈으로</button>
-            </div>
-          </div>
-        `;
-        return;
-      }
+/* 라우팅 */
+function route(){
+  const p=page();
+  document.querySelectorAll(".page").forEach(e=>e.classList.toggle("on",e.id===p));
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.n===p));
+  $("#btnBack").classList.toggle("hidden",p==="home");
+  if(p!=="theater")T.motionTest=false;
+  closeM();scrollTo({top:0,behavior:"smooth"});
+  if(p==="booking")renderBooking();
+  if(p==="my")renderMy();
+  if(p==="theater")open3D();
+  if(p==="profile")renderProfile();
+  updateCartBtn();
+}
+function goBack(){
+  if(page()==="theater"&&T.mode==="seat"){viewOver();return}
+  if(page()==="booking"&&B.step>1&&B.step<4){B.step--;renderBooking();scrollTo({top:0,behavior:"smooth"})}
+  else if(page()==="booking"&&B.step===4)go("home");
+  else if(history.length>1)history.back();else go("home");
+}
+addEventListener("hashchange",route);
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>go(b.dataset.n));
 
-      let main = "";
-
-      if (B.step === 1) {
-        main = `
-          <h3>영화</h3>
-          <div class="chips">${movies.map((x, i) => `<button class="chip${i === B.movie ? " on" : ""}" onclick="pick('movie',${i})">${x.t}</button>`).join("")}</div>
-          <h3>날짜</h3>
-          <div class="chips">${days.map((x, i) => `<button class="chip${i === B.day ? " on" : ""}" onclick="pick('day',${i})">${x.l} (${x.w})</button>`).join("")}</div>
-          <h3>상영 시간</h3>
-          <div class="shows">${shows().map(x => `<button class="show${s && s.n === x.n ? " on" : ""}" onclick="pick('show',${x.n})"><b>${x.t}</b><span>${x.hall}관</span><em>잔여 ${left(x)}석</em></button>`).join("")}</div>
-        `;
-      } else if (B.step === 2) {
-        let rows = "";
-        for (let r = 0; r < 8; r++) {
-          rows += `<div class="row"><i>${ROWS[r]}</i>`;
-          for (let c = 0; c < COLS; c++) {
-            const id = ROWS[r] + (c + 1);
-            const t = isTaken(s, r, c);
-            rows += `<button class="seat${t ? " t" : ""}${B.seats.includes(id) ? " on" : ""}${c === 5 ? " gap" : ""}" ${t ? "disabled" : ""} aria-label="${id}" onclick="seat('${id}')">${c + 1}</button>`;
-          }
-          rows += "</div>";
-        }
-        main = `
-          <h3>좌석 선택 <small style="color:#888;font-weight:400">(최대 4석)</small></h3>
-          <div class="scr">SCREEN</div>
-          ${rows}
-          <div class="legend"><span>선택 가능</span><span class="a">선택됨</span><span class="t">예매 완료</span></div>
-        `;
-      } else {
-        main = `
-          <h3>결제 수단</h3>
-          <div class="chips">${["신용/체크카드", "카카오페이", "네이버페이", "휴대폰 결제"].map(x => `<button class="chip${B.pay === x ? " on" : ""}" onclick="pick('pay','${x}')">${x}</button>`).join("")}</div>
-          <h3>결제 내역</h3>
-          <div class="tk">
-            <div class="bd">
-              <span>일반 요금</span><b>${won(14000)} × ${B.seats.length}</b>
-              <span>${s.hall}관 추가</span><b>${won(SURCH[s.hall])} × ${B.seats.length}</b>
-              <span>총 결제금액</span><b style="color:var(--red)">${won(total)}</b>
-            </div>
-          </div>
-        `;
-      }
-
-      const ok = B.step === 1 ? !!s : B.seats.length > 0;
-
-      el.innerHTML = `
-        <div class="steps">${steps}</div>
-        <div>${main}</div>
-        <aside class="sum">
-          <h4>${m.t}</h4>
-          <p>${days[B.day].l} (${days[B.day].w}) ${s ? s.t + " · " + s.hall + "관" : "시간을 선택해 주세요"}</p>
-          <p>좌석 ${B.seats.length ? [...B.seats].sort().join(", ") : "-"}</p>
-          <div class="tot">${won(total)}</div>
-          <button class="cta" ${ok ? "" : "disabled"} onclick="next()">
-            ${B.step === 3 ? won(total) + " 결제하기" : ["좌석 선택하기", "결제 단계로"][B.step - 1]}
-          </button>
-        </aside>
-      `;
+/* 캐러셀 + 중앙 영화 대형 물결 블러 배경 + 2초 자동 회전 */
+function initStage(){
+  const tr=$("#stageTrack");tr.innerHTML="";
+  movies.forEach((m,i)=>{const b=document.createElement("button");b.className="ph";b.innerHTML=posterHtml(m.poster,m.t);b.setAttribute("aria-label",m.t);b.dataset.id=i;tr.appendChild(b)});
+  const hw=$("#heroWrap");
+  if(hw){
+    hw.addEventListener("mouseenter",()=>stageHover=true);
+    hw.addEventListener("mouseleave",()=>stageHover=false);
+  }
+  updateStage();
+  startStageAuto();
+}
+function updateStage(){
+  const bg=$("#stageBg");
+  if(bg&&movies[cur])bg.style.backgroundImage=`url("${movies[cur].poster}")`;
+  document.querySelectorAll("#stageTrack .ph").forEach(c=>{
+    const i=+c.dataset.id;let d=i-cur,h=Math.floor(movies.length/2);
+    if(d<-h)d+=movies.length;if(d>h)d-=movies.length;
+    c.dataset.pos=d;c.onclick=()=>d===0?openM(movies[i],"영화"):(cur=i,updateStage(),startStageAuto());
+  });
+}
+function rot(d){cur=(cur+d+movies.length)%movies.length;updateStage()}
+function manualRot(d){rot(d);startStageAuto()}
+function startStageAuto(){
+  clearInterval(stageTimer);
+  stageTimer=setInterval(()=>{
+    if(page()==="home"&&!stageHover&&!$("#ov").classList.contains("on")){
+      rot(1);
     }
+  },2000);
+}
+addEventListener("keydown",e=>{
+  if(e.key==="Escape"){
+    if($("#ov").classList.contains("on"))closeM();
+    else if(page()==="theater"&&T.mode==="seat")viewOver();
+  }
+  if(page()==="home"&&!$("#ov").classList.contains("on")){if(e.key==="ArrowLeft")manualRot(-1);if(e.key==="ArrowRight")manualRot(1)}
+});
 
-    function renderMy() {
-      $("#myList").innerHTML = `
-        <div class="steps"><div class="on">내 예매/예약</div></div>
-        <div>
-          ${MY.length ? MY.map(ticket).join("") : `<div class="empty">아직 예매 내역이 없어요.<div class="ctl" style="padding:20px 0 0"><button class="red" onclick="startBooking(cur)">예매하러 가기</button></div></div>`}
+/* 큐레이션 (#필름소사이어티 + 관람객 한줄평/평점 실시간 연동) */
+function buildCurPreviewHtml(movieId){
+  const {avg,count,list}=getMovieRatingSummary(movieId);
+  const topTwo=list.slice(0,2);
+  return `<div class="cur-rev-head"><span>관람객 한줄평 · <b>★ ${avg}</b> (${count}명 참여)</span><button style="color:var(--red);font-weight:600" onclick="openCurationDetail(${movieId})">전체 한줄평 보기 ›</button></div>
+  ${topTwo.map(r=>`<div class="cur-rev-item"><span class="cur-rev-stars">★ ${r.rating}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b>${r.author}</b> · ${r.text}</span></div>`).join("")}`;
+}
+function refreshCurationRating(){
+  const f=CURATED_LIST[curationIdx];if(!f)return;
+  const {avg,count}=getMovieRatingSummary(f.id);
+  const rp=$("#curRatingPill");if(rp)rp.textContent=`★ ${avg} (${count})`;
+  const pv=$("#curRevPreview");if(pv)pv.innerHTML=buildCurPreviewHtml(f.id);
+}
+
+function initCuration(){
+  const el=$("#curationBody");if(!el)return;
+  const f=CURATED_LIST[curationIdx];
+  const {avg,count}=getMovieRatingSummary(f.id);
+  el.innerHTML=`
+    <div class="curation-left curation-fade" id="curLeftFade">
+      <div class="poster-box ph" id="curPosterBox"><div class="badge-tag">CGV SPECIAL</div>${posterHtml(f.poster,f.t)}</div>
+      <div class="actions">
+        <button id="curDetailBtn" onclick="openCurationDetail(${f.id})">자세히보기</button>
+        <button class="btn-book" id="curBookBtn" onclick="startBooking(${f.id})">예매</button>
+      </div>
+    </div>
+    <div class="curation-right">
+      <div class="curation-info curation-fade" id="curInfoFade">
+        <div class="tag-title" id="curTag">${f.curTag}</div>
+        <div class="curation-title-row"><h3 id="curTitle">${f.t}</h3><span class="rating-pill" id="curRatingPill">★ ${avg} (${count})</span></div>
+        <div class="sub-text" id="curSub">${f.sub}</div>
+        <p class="lead-text" id="curLead">${f.curHead}</p>
+        <p class="desc-text" id="curDesc">${f.curText}</p>
+        <div class="cur-rev-preview" id="curRevPreview">${buildCurPreviewHtml(f.id)}</div>
+      </div>
+      <div class="curation-sub-grid" id="curSubGrid">
+        ${CURATED_LIST.map((m,idx)=>`<div class="curation-sub-card${idx===curationIdx?" on":""}" data-cidx="${idx}" onclick="selectCurationIdx(${idx},true)">
+          <div class="poster-box ph">${posterHtml(m.poster,m.t)}</div>
+          <div class="title">${m.t}</div>
+        </div>`).join("")}
+      </div>
+    </div>`;
+  const sec=$("#curationSec");
+  if(sec){
+    sec.addEventListener("mouseenter",()=>curHover=true);
+    sec.addEventListener("mouseleave",()=>curHover=false);
+  }
+  startCurAuto();
+}
+
+function selectCurationIdx(idx,isManual=false){
+  if(idx===curationIdx)return;
+  curationIdx=idx;
+  if(isManual)startCurAuto();
+
+  document.querySelectorAll("#curSubGrid .curation-sub-card").forEach((c,i)=>c.classList.toggle("on",i===curationIdx));
+  const leftFade=$("#curLeftFade"),infoFade=$("#curInfoFade");
+  if(!leftFade||!infoFade)return;
+
+  leftFade.classList.add("switching");
+  infoFade.classList.add("switching");
+
+  clearTimeout(curSwitchLock);
+  curSwitchLock=setTimeout(()=>{
+    const f=CURATED_LIST[curationIdx];
+    const {avg,count}=getMovieRatingSummary(f.id);
+    const pb=$("#curPosterBox");
+    if(pb)pb.innerHTML=`<div class="badge-tag">CGV SPECIAL</div>${posterHtml(f.poster,f.t)}`;
+    const db=$("#curDetailBtn"),bb=$("#curBookBtn");
+    if(db)db.setAttribute("onclick",`openCurationDetail(${f.id})`);
+    if(bb)bb.setAttribute("onclick",`startBooking(${f.id})`);
+    $("#curTag").textContent=f.curTag;
+    $("#curTitle").textContent=f.t;
+    $("#curRatingPill").textContent=`★ ${avg} (${count})`;
+    $("#curSub").textContent=f.sub;
+    $("#curLead").textContent=f.curHead;
+    $("#curDesc").textContent=f.curText;
+    $("#curRevPreview").innerHTML=buildCurPreviewHtml(f.id);
+
+    requestAnimationFrame(()=>{
+      leftFade.classList.remove("switching");
+      infoFade.classList.remove("switching");
+    });
+  },280);
+}
+
+function startCurAuto(){
+  clearInterval(curTimer);
+  curTimer=setInterval(()=>{
+    if(page()==="home"&&!curHover&&!$("#ov").classList.contains("on")){
+      selectCurationIdx((curationIdx+1)%CURATED_LIST.length,false);
+    }
+  },4500);
+}
+
+function openCurationDetail(id){
+  const m=movies[id];if(!m)return;
+  const wished=WISH.some(w=>w.key===`영화:${m.t}`);
+  const {avg,count}=getMovieRatingSummary(m.id);
+  $("#md").innerHTML=`<button class="x" aria-label="닫기" onclick="closeM()">×</button>
+  <div class="top"><div class="ph">${posterHtml(m.poster,m.t)}</div><div class="info">
+    <span style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:6px">${m.curTag||"#필름소사이어티"}</span>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><h2 style="margin:0">${m.t}</h2><span class="rating-pill">★ ${avg} (${count})</span></div>
+    <p style="margin-top:6px">${m.sub}</p>
+    <div class="cur-quote">“${m.curHead||m.d}”</div>
+    <div class="acts">
+      <button class="pill-btn go" onclick="startBooking(${m.id})">예매하기</button>
+      <button class="pill-btn${wished?" on":""}" id="curWishBtn" onclick="toggleCurationWish(${m.id})">찜</button>
+      <button class="pill-btn" onclick="openM(movies[${m.id}],'영화')">영화 기본정보</button>
+    </div>
+  </div></div>
+  <p class="body">${m.curText||m.d}</p>
+  ${renderReviewsBlock(m.id,"curation")}`;
+  $("#ov").classList.add("on");$("#md .x").focus();
+}
+function toggleCurationWish(id){
+  const on=toggleWish(movies[id],"영화");
+  const btn=$("#curWishBtn");if(btn)btn.classList.toggle("on",on);
+}
+
+/* 홈 특별관 소개 */
+function mountHome(){
+  const el=$("#thHome");
+  el.innerHTML=`<div class="stagebox"><div class="wing l"></div>
+  <div class="screen" role="button" tabindex="0" aria-label="특별관 자세히 보기" style="cursor:pointer"><span class="screen-txt"></span></div>
+  <div class="wing r"></div></div>
+  <div class="desc"></div><button class="more3d" onclick="go('theater')">자세히보기 · 3D로 둘러보기 ›</button><div class="tabs"></div>`;
+  const sc=el.querySelector(".screen");sc.onclick=()=>go("theater");sc.onkeydown=e=>{if(e.key==="Enter")go("theater")};
+  [el.querySelector(".tabs"),$("#tpTabs")].forEach(t=>TABS.forEach(k=>{const b=document.createElement("button");b.textContent=k;b.dataset.k=k;b.onclick=()=>showT(k);t.appendChild(b)}));
+}
+function showT(k){
+  fmt=k;const f=fmts[k],el=$("#thHome"),s=el.querySelector(".screen");
+  s.style.setProperty("--w",f[2].w);s.style.setProperty("--h",f[2].h);
+  el.querySelector(".screen-txt").textContent=f[0];
+  el.classList.toggle("sx",k==="SCREENX");
+  el.querySelector(".desc").textContent=f[1];$("#tpDesc").textContent=f[0]+" · "+f[1];
+  document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.k===k));
+  if(k!=="4DX")T.motionTest=false;
+  if(T.ok&&page()==="theater"){buildHall(fmt);buildSeats(fmt);paint();ui()}
+}
+function bookHall(){
+  const pickedSeat=T.sel?ROWS[T.sel[0]]+(T.sel[1]+1):null;
+  const targetShow=shows()[TABS.indexOf(fmt)];
+  startBooking(cur);
+  B.show=targetShow;
+  if(pickedSeat&&!isTaken(targetShow,T.sel[0],T.sel[1])){B.seats=[pickedSeat];B.step=2}
+  renderBooking();
+}
+
+/* 그리드 */
+function drawGrid(el,list,label){
+  el.innerHTML="";
+  list.forEach((m,i)=>{const b=document.createElement("button");b.className="ph"+(label==="영화"&&i===2?" big":"");b.innerHTML=posterHtml(m.poster,m.t);b.onclick=()=>openM(m,label);el.appendChild(b)});
+}
+
+/* 찜하기 */
+function toggleWish(m,label){
+  const key=`${label}:${m.t}`;
+  const idx=WISH.findIndex(w=>w.key===key);
+  if(idx>=0){WISH.splice(idx,1);toast("찜을 취소했어요")}
+  else{WISH.unshift({key,label,id:m.id??null,t:m.t,poster:m.poster,sub:m.sub});toast(label==="영화"?"프로필 '찜한 영화'에 추가했어요":"찜 목록에 추가했어요")}
+  try{localStorage.setItem("cgvWish",JSON.stringify(WISH))}catch(e){}
+  if(page()==="profile")renderProfile();
+  return idx<0;
+}
+
+/* 매점 장바구니 & 결제 · 픽업 시스템 (매점 페이지 전용 원형 버튼) */
+function saveCart(){
+  try{localStorage.setItem("cgvCart",JSON.stringify(CART))}catch(e){}
+  updateCartBtn();
+}
+function updateCartBtn(){
+  const cnt=CART.reduce((a,b)=>a+b.qty,0);
+  const fab=$("#fabCart"),badge=$("#fabBadge");
+  if(fab)fab.classList.toggle("hidden",page()!=="store");
+  if(badge){
+    badge.textContent=cnt;
+    badge.classList.toggle("hidden",cnt===0);
+  }
+}
+function addToCart(item){
+  const found=CART.find(c=>c.t===item.t);
+  if(found)found.qty++;
+  else CART.push({t:item.t,price:item.price,poster:item.poster,qty:1});
+  saveCart();
+  toast(`${item.t} 장바구니에 담았어요`);
+}
+function changeCartQty(idx,delta){
+  if(!CART[idx])return;
+  CART[idx].qty+=delta;
+  if(CART[idx].qty<=0)CART.splice(idx,1);
+  saveCart();
+  openCart();
+}
+function openCart(){
+  const total=CART.reduce((a,b)=>a+b.price*b.qty,0);
+  const bodyHtml=CART.length
+    ?`<div class="cart-list">${CART.map((c,i)=>`<div class="cart-row">
+        <div class="c-info"><b>${c.t}</b><span>${won(c.price)} · 소계 ${won(c.price*c.qty)}</span></div>
+        <div class="qty-box">
+          <button class="qty-btn" onclick="changeCartQty(${i},-1)" aria-label="수량 감소">-</button>
+          <span style="min-width:22px;text-align:center;font-weight:700">${c.qty}</span>
+          <button class="qty-btn" onclick="changeCartQty(${i},1)" aria-label="수량 증가">+</button>
         </div>
-      `;
-    }
+      </div>`).join("")}</div>
+      <h4 style="margin:20px 0 10px;font-size:15px">픽업 극장</h4>
+      <div class="chips">${["CGV 용산아이파크몰 · 6층 매점","CGV 왕십리 · 5층 매점","CGV 영등포 · 4층 매점"].map(b=>`<button class="chip${PICKUP_OPT.branch===b?" on":""}" onclick="PICKUP_OPT.branch='${b}';openCart()">${b}</button>`).join("")}</div>
+      <h4 style="margin:18px 0 10px;font-size:15px">픽업 시간</h4>
+      <div class="chips">${["지금 바로 픽업","15분 뒤 픽업","영화 시작 전 픽업"].map(w=>`<button class="chip${PICKUP_OPT.when===w?" on":""}" onclick="PICKUP_OPT.when='${w}';openCart()">${w}</button>`).join("")}</div>
+      <h4 style="margin:18px 0 10px;font-size:15px">결제 수단</h4>
+      <div class="chips">${["신용/체크카드","카카오페이","네이버페이","CJ ONE 포인트"].map(p=>`<button class="chip${PICKUP_OPT.pay===p?" on":""}" onclick="PICKUP_OPT.pay='${p}';openCart()">${p}</button>`).join("")}</div>
+      <div class="cart-total-box"><span>총 결제금액 (${CART.reduce((a,b)=>a+b.qty,0)}개)</span><b>${won(total)}</b></div>
+      <button class="cta" onclick="checkoutCart()">${won(total)} 결제 및 픽업 주문하기</button>`
+    :`<div class="empty" style="padding:40px 0">장바구니가 비어 있어요. 매점 메뉴에서 '담기'를 눌러보세요.<div class="ctl" style="padding:20px 0 0"><button class="red" onclick="closeM();go('store')">메뉴 보러 가기</button></div></div>`;
 
-    /* App Initialization */
-    initStage();
-    drawCuration();
-    drawGrid($("#mg"), movies, "영화");
-    drawGrid($("#sg"), items, "매점");
-    mounts();
-    showT(fmt);
-    route();
-  </script>
+  $("#md").innerHTML=`<button class="x" aria-label="닫기" onclick="closeM()">×</button>
+  <h2 style="margin:0 0 6px;font-size:24px">매점 장바구니 · 픽업 주문</h2>
+  <p style="margin:0;color:#888;font-size:14px">결제 즉시 픽업 번호가 발급되며 매점 카운터에서 바로 수령할 수 있어요.</p>
+  ${bodyHtml}`;
+  $("#ov").classList.add("on");
+}
+function checkoutCart(){
+  if(!CART.length)return;
+  const total=CART.reduce((a,b)=>a+b.price*b.qty,0);
+  const summary=CART.map(c=>`${c.t} × ${c.qty}`).join(", ");
+  const pickupNo="P-"+String(Math.floor(100+Math.random()*900));
+  const order={
+    type:"store",
+    no:"SNK"+String(Date.now()).slice(-7),
+    pickupNo,
+    title:CART[0].t+(CART.length>1?` 외 ${CART.length-1}건`:""),
+    itemsText:summary,
+    branch:PICKUP_OPT.branch,
+    when:PICKUP_OPT.when,
+    total,
+    pay:PICKUP_OPT.pay,
+    pickedUp:false
+  };
+  MY.unshift(order);
+  try{localStorage.setItem("cgvMy",JSON.stringify(MY))}catch(e){}
+  CART=[];saveCart();
+  showPickupTicketModal(order);
+}
+function showPickupTicketModal(order){
+  $("#md").innerHTML=`<button class="x" aria-label="닫기" onclick="closeM()">×</button>
+  <h2 style="margin:0 0 6px;font-size:24px">매점 픽업 교환권</h2>
+  <p style="margin:0 0 20px;color:#888;font-size:14px">매점 픽업대에서 아래 픽업 번호를 제시해 주세요.</p>
+  <div class="tk">
+    <div class="hd store-hd"><small>${order.branch} · ${order.when}</small><h2>픽업 번호 ${order.pickupNo}</h2></div>
+    <div class="bd"><span>주문메뉴</span><b>${order.itemsText}</b><span>결제금액</span><b>${won(order.total)}</b><span>결제수단</span><b>${order.pay}</b></div>
+    <div class="bd sep"><span>주문번호</span><b>${order.no}</b><span>수령상태</span><b style="color:var(--red)">${order.pickedUp?"픽업 완료":"조리 및 픽업 대기"}</b></div>
+  </div>
+  <div class="ctl" style="padding:16px 0 0">
+    <button onclick="completePickup('${order.no}')">${order.pickedUp?"픽업 완료됨":"픽업 완료 확인"}</button>
+    <button class="red" onclick="closeM();go('my')">내 예매/예약에서 보기</button>
+  </div>`;
+  $("#ov").classList.add("on");
+}
+function completePickup(no){
+  const target=MY.find(x=>x.no===no);
+  if(target){
+    target.pickedUp=true;
+    try{localStorage.setItem("cgvMy",JSON.stringify(MY))}catch(e){}
+    toast("매점 메뉴 픽업이 완료되었어요!");
+    if(page()==="my")renderMy();
+    if(page()==="profile")renderProfile();
+    if($("#ov").classList.contains("on"))showPickupTicketModal(target);
+  }
+}
+
+/* 통합 검색 모달 */
+function openSearch(){
+  $("#md").innerHTML=`<button class="x" aria-label="닫기" onclick="closeM()">×</button>
+  <h2 style="margin:0 0 4px;font-size:22px">통합 검색</h2>
+  <p style="margin:0;color:#888;font-size:13px">상영 중인 영화와 매점 메뉴를 빠르게 검색하세요.</p>
+  <input class="search-input" id="searchInp" type="search" placeholder="영화 제목 또는 매점 메뉴 입력..." oninput="renderSearchRes(this.value)">
+  <div class="search-res" id="searchRes"></div>`;
+  $("#ov").classList.add("on");
+  renderSearchRes("");
+  setTimeout(()=>$("#searchInp")?.focus(),60);
+}
+function renderSearchRes(q){
+  const box=$("#searchRes");if(!box)return;
+  const kw=q.trim().toLowerCase();
+  const mHits=movies.filter(m=>m.t.toLowerCase().includes(kw)||m.sub.toLowerCase().includes(kw)).map(m=>({...m,kind:"영화"}));
+  const sHits=items.filter(s=>s.t.toLowerCase().includes(kw)||s.d.toLowerCase().includes(kw)).map(s=>({...s,kind:"매점"}));
+  const all=[...mHits,...sHits].slice(0,8);
+  if(!all.length){box.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:32px 0;color:#888">검색 결과가 없어요.</div>`;return}
+  box.innerHTML=all.map(x=>`<button class="search-card" onclick="openSearched('${x.kind}','${x.t.replace(/'/g,"\\'")}')">
+    <div class="ph">${posterHtml(x.poster,x.t)}</div>
+    <b>${x.t}</b><small>${x.kind} · ${x.sub}</small>
+  </button>`).join("");
+}
+function openSearched(kind,title){
+  const target=kind==="영화"?movies.find(m=>m.t===title):items.find(s=>s.t===title);
+  if(target)openM(target,kind);
+}
+
+/* 모달 (영화 상세정보 — 관람객 평점 및 한줄평 연동) */
+function openM(m,label){
+  const isM=label==="영화";
+  const acts=isM?["예매","찜","공유","예고편"]:["담기","장바구니","찜","공유"];
+  const wished=WISH.some(w=>w.key===`${label}:${m.t}`);
+  const ratingBadge=isM?(()=>{const s=getMovieRatingSummary(m.id);return `<span class="rating-pill">★ ${s.avg} (${s.count})</span>`})():"";
+  $("#md").innerHTML=`<button class="x" aria-label="닫기" onclick="closeM()">×</button>
+  <div class="top"><div class="ph">${posterHtml(m.poster,m.t)}</div><div class="info">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><h2 style="margin:0">${m.t}</h2>${ratingBadge}</div>
+    <p style="margin-top:6px">${m.sub}</p>
+    <div class="acts">${acts.map(a=>`<button class="pill-btn${a==="예매"||a==="담기"?" go":""}${a==="찜"&&wished?" on":""}" data-a="${a}">${a}</button>`).join("")}</div>
+  </div></div>
+  <p class="body">${m.d}</p>
+  <div class="cast">${(isM?cast:["기본","라지","치즈","세트"]).map(c=>`<span class="cast-pill">${c}</span>`).join("")}</div>
+  ${isM?renderReviewsBlock(m.id,"detail"):""}`;
+  $("#md").querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>{
+    const a=b.dataset.a;
+    if(a==="예매")startBooking(m.id);
+    else if(a==="찜"){const on=toggleWish(m,label);b.classList.toggle("on",on)}
+    else if(a==="담기")addToCart(m);
+    else if(a==="장바구니")openCart();
+    else if(a==="공유")toast("링크를 복사했어요");
+    else toast("예고편을 불러오는 중이에요");
+  });
+  $("#ov").classList.add("on");$("#md .x").focus();
+}
+function closeM(){$("#ov").classList.remove("on")}
+$("#ov").onclick=e=>{if(e.target.id==="ov")closeM()};
+
+/* ---------- 가상 예매 (10열 × 16석) ---------- */
+const B={step:1,movie:2,day:0,show:null,seats:[],pay:"신용/체크카드"};
+let MY=[];try{MY=JSON.parse(localStorage.getItem("cgvMy")||"[]")}catch(e){}
+const days=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()+i);return{l:`${d.getMonth()+1}/${d.getDate()}`,w:"일월화수목금토"[d.getDay()]}});
+const TIMES=["10:20","13:05","16:10","19:30","22:10"];
+const SURCH={laser:2000,IMAX:4000,SCREENX:3000,"4DX":5000,"Dolby Atmos":3000};
+const ROWS="ABCDEFGHIJ",NROW=10,COLS=16;
+const won=n=>n.toLocaleString()+"원";
+const shows=()=>TIMES.map((t,n)=>({t,n,hall:TABS[(n+B.day)%5]}));
+const isTaken=(s,r,c)=>((r+1)*7+(c+1)*13+B.day*3+s.n*5+B.movie)%6===0;
+const left=s=>{let k=0;for(let r=0;r<NROW;r++)for(let c=0;c<COLS;c++)if(!isTaken(s,r,c))k++;return k};
+function startBooking(i){
+  Object.assign(B,{step:1,movie:i,day:0,show:null,seats:[]});closeM();
+  if(page()==="booking")renderBooking();else go("booking");
+}
+function pick(k,v){
+  if(k==="movie"){B.movie=v;B.show=null;B.seats=[]}
+  if(k==="day"){B.day=v;B.show=null;B.seats=[]}
+  if(k==="show"){B.show=shows()[v];B.seats=[]}
+  if(k==="pay")B.pay=v;
+  renderBooking();
+}
+function seat(id){
+  const i=B.seats.indexOf(id);
+  if(i>=0)B.seats.splice(i,1);else if(B.seats.length>=4)return toast("최대 4석까지 선택할 수 있어요");else B.seats.push(id);
+  renderBooking();
+}
+function next(){
+  if(B.step<3){B.step++;renderBooking();scrollTo({top:0,behavior:"smooth"});return}
+  const m=movies[B.movie],price=14000+SURCH[B.show.hall];
+  B.done={type:"movie",movieId:m.id,no:"CGV"+String(Date.now()).slice(-8),movie:m.t,date:`${days[B.day].l} (${days[B.day].w})`,time:B.show.t,hall:B.show.hall,seats:[...B.seats].sort(),total:price*B.seats.length,pay:B.pay};
+  MY.unshift(B.done);try{localStorage.setItem("cgvMy",JSON.stringify(MY))}catch(e){}
+  B.step=4;renderBooking();scrollTo({top:0,behavior:"smooth"});
+}
+const ticket=t=>{
+  if(t.type==="store"){
+    return `<div class="tk"><div class="hd store-hd"><small>${t.branch} · ${t.when}</small><h2>[매점 픽업] ${t.title} · ${t.pickupNo}</h2></div>
+    <div class="bd"><span>주문메뉴</span><b>${t.itemsText}</b><span>결제금액</span><b>${won(t.total)}</b><span>수령상태</span><b style="color:${t.pickedUp?"#888":"var(--red)"}">${t.pickedUp?"픽업 완료":"픽업 대기중"}</b></div>
+    <div class="bd sep"><span>주문번호</span><b>${t.no}</b><span>픽업확인</span><b>${t.pickedUp?"수령 완료":`<button class="pill-btn go" style="padding:5px 14px;font-size:12px" onclick="completePickup('${t.no}')">픽업 완료하기</button>`}</b></div></div>`;
+  }
+  const rev=USER_REVIEWS.find(r=>r.ticketNo===t.no);
+  return `<div class="tk"><div class="hd"><small>${t.date} ${t.time}</small><h2>${t.movie}</h2></div>
+  <div class="bd"><span>상영관</span><b>${t.hall}관</b><span>좌석</span><b>${t.seats.join(", ")}</b><span>결제금액</span><b>${won(t.total)}</b></div>
+  <div class="bd sep"><span>예매번호</span><b>${t.no}</b><span>한줄평</span><b>${rev?`<span style="color:var(--red)">★ ${rev.rating}</span> ${rev.text} <button class="pill-btn" style="padding:4px 10px;font-size:11px;margin-left:6px" onclick="openReviewModal('${t.no}','my')">수정</button>`:`<button class="pill-btn go" style="padding:5px 14px;font-size:12px" onclick="openReviewModal('${t.no}','my')">한줄평·평점 작성</button>`}</b></div></div>`;
+};
+function showMovieTicketModal(no){
+  const t=MY.find(x=>x.no===no);if(!t)return;
+  if(t.type==="store"){showPickupTicketModal(t);return}
+  $("#md").innerHTML=`<button class="x" aria-label="닫기" onclick="closeM()">×</button>
+  <h2 style="margin:0 0 6px;font-size:24px">모바일 예매 티켓</h2>
+  <p style="margin:0 0 20px;color:#888;font-size:14px">상영관 입장 시 아래 예매 티켓을 제시해 주세요.</p>
+  ${ticket(t)}
+  <div class="ctl" style="padding:16px 0 0"><button class="red" onclick="closeM();go('my')">내 예매/예약 전체 보기</button></div>`;
+  $("#ov").classList.add("on");
+}
+function renderBooking(){
+  const el=$("#bk"),m=movies[B.movie],s=B.show,price=s?14000+SURCH[s.hall]:0,total=price*B.seats.length;
+  const steps=["영화·시간","좌석","결제","완료"].map((x,i)=>`<div class="${B.step===i+1?"on":i+1<B.step?"done":""}">${i+1}. ${x}</div>`).join("");
+  el.classList.toggle("one",B.step===4);
+  if(B.step===4){
+    el.innerHTML=`<div class="steps">${steps}</div><div><h2 style="margin:0 0 6px">예매가 완료됐어요</h2><p style="color:#888;margin:0 0 20px">가상 예매입니다. 실제 결제는 이루어지지 않아요.</p>${ticket(B.done)}
+    <div class="ctl" style="padding:20px 0 0"><button onclick="go('my')">내 예매 보기</button><button class="red" onclick="go('home')">홈으로</button></div></div>`;return;
+  }
+  let main="";
+  if(B.step===1){
+    main=`<h3>영화</h3><div class="chips">${movies.map((x,i)=>`<button class="chip${i===B.movie?" on":""}" onclick="pick('movie',${i})">${x.t}</button>`).join("")}</div>
+    <h3>날짜</h3><div class="chips">${days.map((x,i)=>`<button class="chip${i===B.day?" on":""}" onclick="pick('day',${i})">${x.l} (${x.w})</button>`).join("")}</div>
+    <h3>상영 시간</h3><div class="shows">${shows().map(x=>`<button class="show${s&&s.n===x.n?" on":""}" onclick="pick('show',${x.n})"><b>${x.t}</b><span>${x.hall}관</span><em>잔여 ${left(x)}석</em></button>`).join("")}</div>`;
+  }else if(B.step===2){
+    let rows="";
+    for(let r=0;r<NROW;r++){rows+=`<div class="row"><i>${ROWS[r]}</i>`;
+      for(let c=0;c<COLS;c++){const id=ROWS[r]+(c+1),t=isTaken(s,r,c);
+        rows+=`<button class="seat${t?" t":""}${B.seats.includes(id)?" on":""}${c===3||c===11?" gap":""}" ${t?"disabled":""} aria-label="${id}" onclick="seat('${id}')">${c+1}</button>`}
+      rows+="</div>"}
+    main=`<h3>좌석 선택 <small style="color:#888;font-weight:400">(최대 4석 · 160석 규모)</small></h3><div class="scr">SCREEN</div>${rows}<div class="legend"><span>선택 가능</span><span class="a">선택됨</span><span class="t">예매 완료</span></div>`;
+  }else{
+    main=`<h3>결제 수단</h3><div class="chips">${["신용/체크카드","카카오페이","네이버페이","휴대폰 결제"].map(x=>`<button class="chip${B.pay===x?" on":""}" onclick="pick('pay','${x}')">${x}</button>`).join("")}</div>
+    <h3>결제 내역</h3><div class="tk"><div class="bd"><span>일반 요금</span><b>${won(14000)} × ${B.seats.length}</b><span>${s.hall}관 추가</span><b>${won(SURCH[s.hall])} × ${B.seats.length}</b><span>총 결제금액</span><b style="color:var(--red)">${won(total)}</b></div></div>`;
+  }
+  const ok=B.step===1?!!s:B.seats.length>0;
+  el.innerHTML=`<div class="steps">${steps}</div><div>${main}</div>
+  <aside class="sum"><h4>${m.t}</h4><p>${days[B.day].l} (${days[B.day].w}) ${s?s.t+" · "+s.hall+"관":"시간을 선택해 주세요"}</p><p>좌석 ${B.seats.length?[...B.seats].sort().join(", "):"-"}</p>
+  <div class="tot">${won(total)}</div><button class="cta" ${ok?"":"disabled"} onclick="next()">${B.step===3?won(total)+" 결제하기":["좌석 선택하기","결제 단계로"][B.step-1]}</button></aside>`;
+}
+function renderMy(){
+  $("#myList").innerHTML=`<div class="steps"><div class="on">내 예매/예약 · 매점 픽업</div></div><div>${MY.length?MY.map(ticket).join(""):`<div class="empty">아직 예매 및 매점 주문 내역이 없어요.<div class="ctl" style="padding:20px 0 0"><button class="red" onclick="startBooking(cur)">예매하러 가기</button></div></div>`}</div>`;
+}
+
+/* ---------- 프로필 페이지 (1. 로그인 -> 2. 관람 및 이용 내역(한줄평·평점 작성) -> 3. 찜한 영화 -> 4. 화면 테마 설정) ---------- */
+function submitLogin(e){
+  e.preventDefault();
+  const idVal=($("#loginId")?.value||"").trim()||"cgv_member";
+  USER={id:idVal,name:idVal.split("@")[0]||"CGV 멤버"};
+  try{localStorage.setItem("cgvUser",JSON.stringify(USER))}catch(err){}
+  toast(`${USER.name}님 환영합니다!`);
+  renderProfile();
+}
+function quickLogin(){
+  USER={id:"guest@cgv.co.kr",name:"CGV 멤버"};
+  try{localStorage.setItem("cgvUser",JSON.stringify(USER))}catch(err){}
+  toast("간편 로그인되었어요");
+  renderProfile();
+}
+function logoutUser(){
+  USER=null;
+  try{localStorage.removeItem("cgvUser")}catch(err){}
+  toast("로그아웃되었어요");
+  renderProfile();
+}
+
+function renderProfile(){
+  const wishedMovies=WISH.filter(w=>w.label==="영화");
+  const movieHistory=MY.filter(x=>x.type!=="store");
+  const pts=MY.reduce((a,b)=>a+Math.round((b.total||0)*0.05),1250);
+
+  const topAuthHtml=USER
+    ?`<div class="pf-card">
+        <div class="pf-top">
+          <div class="pf-user-left">
+            <span class="pf-badge">VIP</span>
+            <div><h3 class="pf-name">${USER.name}님</h3><div class="pf-grade">${USER.id} · CJ ONE 멤버십 · 관람 ${movieHistory.length}편</div></div>
+          </div>
+          <button class="pill-btn" style="background:rgba(255,255,255,.12);font-size:13px;padding:8px 16px" onclick="logoutUser()">로그아웃</button>
+        </div>
+        <div class="pf-stats">
+          <button onclick="document.getElementById('pfHistorySec')?.scrollIntoView({behavior:'smooth'})"><b>${MY.length}</b><span>관람·이용 내역</span></button>
+          <button onclick="document.getElementById('pfWishSec')?.scrollIntoView({behavior:'smooth'})"><b>${wishedMovies.length}</b><span>찜한 영화</span></button>
+          <button onclick="toast('보유 포인트 ${pts.toLocaleString()}P')"><b>${pts.toLocaleString()}P</b><span>포인트</span></button>
+        </div>
+        <div class="barcode">
+          <div class="bars"></div>
+          <small>9402 8810 2026 0419</small>
+        </div>
+        <button class="cta" onclick="toast('멤버십 바코드가 밝게 활성화되었어요')">멤버십 바코드 확대</button>
+      </div>`
+    :`<div class="pf-box">
+        <div class="pf-login-grid">
+          <div>
+            <span style="font-size:12px;font-weight:700;color:var(--red)">CJ ONE 통합 회원</span>
+            <h2 style="margin:6px 0 10px;font-size:24px">CGV 로그인</h2>
+            <p style="margin:0 0 18px;font-size:14px;color:#888;line-height:1.65">로그인하시면 모바일 멤버십 바코드, 관람 내역 및 한줄평 작성 기능을 편리하게 이용할 수 있어요.</p>
+            <button type="button" class="pill-btn" onclick="quickLogin()">원클릭 간편 체험 로그인</button>
+          </div>
+          <form class="pf-field" onsubmit="submitLogin(event)">
+            <input class="pf-input" id="loginId" type="text" placeholder="아이디 또는 이메일 입력" required>
+            <input class="pf-input" id="loginPw" type="password" placeholder="비밀번호 입력" required>
+            <button type="submit" class="cta" style="margin-top:4px">로그인</button>
+          </form>
+        </div>
+      </div>`;
+
+  const histHtml=MY.length
+    ?`<div class="pf-hist-list">${MY.map(item=>{
+        if(item.type==="store"){
+          return `<div class="pf-hist-card">
+            <div class="pf-hist-top"><span class="pf-hist-tag snk">매점 픽업 · ${item.pickupNo}</span><small style="color:${item.pickedUp?"#888":"var(--red)"};font-weight:700">${item.pickedUp?"픽업 완료":"픽업 대기"}</small></div>
+            <h4>${item.title}</h4>
+            <div class="pf-hist-meta">${item.branch} (${item.when})<br>${item.itemsText}</div>
+            <div class="pf-hist-foot"><b>${won(item.total)}</b><button class="pill-btn" style="padding:5px 12px;font-size:12px" onclick="showPickupTicketModal(MY.find(x=>x.no==='${item.no}'))">교환권 보기</button></div>
+          </div>`;
+        }
+        const rev=USER_REVIEWS.find(r=>r.ticketNo===item.no);
+        const revBox=rev
+          ?`<div class="pf-my-rev"><b>★ ${rev.rating}.0</b>${rev.text}</div>`
+          :`<div style="font-size:12px;color:#888">아직 한줄평을 작성하지 않았어요.</div>`;
+        return `<div class="pf-hist-card">
+          <div class="pf-hist-top"><span class="pf-hist-tag">영화 관람 · ${item.hall}관</span><small style="color:#888">${item.date} ${item.time}</small></div>
+          <h4>${item.movie}</h4>
+          <div class="pf-hist-meta">좌석: ${item.seats.join(", ")} · 예매번호: ${item.no}</div>
+          ${revBox}
+          <div class="pf-hist-foot">
+            <b>${won(item.total)}</b>
+            <div class="pf-hist-btns">
+              <button class="pill-btn${rev?"":" go"}" style="padding:5px 12px;font-size:12px" onclick="openReviewModal('${item.no}','profile')">${rev?"평점·한줄평 수정":"평점·한줄평 작성"}</button>
+              <button class="pill-btn" style="padding:5px 12px;font-size:12px" onclick="showMovieTicketModal('${item.no}')">티켓</button>
+            </div>
+          </div>
+        </div>`;
+      }).join("")}</div>`
+    :`<div class="empty" style="padding:36px 0;border:1px solid var(--line);border-radius:16px">아직 관람 및 이용 내역이 없어요.<div class="ctl" style="padding:16px 0 0"><button class="red" onclick="startBooking(cur)">첫 영화 예매하기</button></div></div>`;
+
+  const wishHtml=wishedMovies.length
+    ?`<div class="pf-wish">${wishedMovies.map(w=>`<div class="pf-wish-item">
+        <div class="ph" onclick="openM(movies[${w.id}],'영화')">${posterHtml(w.poster,w.t)}</div>
+        <div class="w-title">${w.t}</div>
+        <div class="w-acts">
+          <button onclick="removeWishByKey('${w.key}')">해제</button>
+          <button class="go" onclick="startBooking(${w.id})">예매</button>
+        </div>
+      </div>`).join("")}</div>`
+    :`<div class="empty" style="padding:36px 0;border:1px solid var(--line);border-radius:16px">찜한 영화가 없어요. 영화 상세에서 '찜'을 눌러보세요.</div>`;
+
+  $("#pfWrap").innerHTML=`
+    ${topAuthHtml}
+    <div class="pf-sec" id="pfHistorySec">
+      <h3>관람 및 이용 내역 <button style="font-size:13px;color:var(--red);font-weight:600" onclick="go('my')">전체 내역 관리 ›</button></h3>
+      ${histHtml}
+    </div>
+    <div class="pf-sec" id="pfWishSec">
+      <h3>찜한 영화 <small style="font-size:13px;color:#888;font-weight:400">총 ${wishedMovies.length}편</small></h3>
+      ${wishHtml}
+    </div>
+    <div class="pf-sec" style="padding-top:16px;border-top:1px solid var(--line)">
+      <h3>화면 테마 설정</h3>
+      <div class="chips">
+        <button class="chip${THEME==="auto"?" on":""}" onclick="applyTheme('auto')">시스템 설정</button>
+        <button class="chip${THEME==="light"?" on":""}" onclick="applyTheme('light')">라이트 모드</button>
+        <button class="chip${THEME==="dark"?" on":""}" onclick="applyTheme('dark')">다크 모드</button>
+      </div>
+    </div>`;
+}
+function removeWishByKey(key){
+  const idx=WISH.findIndex(w=>w.key===key);
+  if(idx>=0)WISH.splice(idx,1);
+  try{localStorage.setItem("cgvWish",JSON.stringify(WISH))}catch(e){}
+  toast("찜한 영화에서 삭제했어요");
+  renderProfile();
+}
+
+/* ---------- 특별관 3D 체험 (이미지 없는 스크린 & 어두운 상영관 & 4DX 모션 체어 테스트) ---------- */
+const T={mode:"over",hov:null,last:null,sel:null,yaw:0,pitch:0,motionTest:false};
+const SX=c=>(c-7.5)*.64+(c<4?-.5:c>11?.5:0);
+const SZ=r=>5.0+r*1.2;
+const SY=r=>r*.42;
+const SEYE=(r,c)=>new THREE.Vector3(SX(c),SY(r)+1.35,SZ(r)-.05);
+const sid=i=>ROWS[Math.floor(i/COLS)]+(i%COLS+1);
+
+function viewOver(){
+  T.mode="over";T.yaw=T.pitch=0;T.motionTest=false;
+  ui();
+}
+
+function toggle4DXMotion(){
+  if(fmt!=="4DX")return;
+  if(!T.motionTest){
+    if(T.mode!=="seat"||!T.sel){
+      T.mode="seat";T.sel=[4,7];T.last=4*COLS+7;T.yaw=T.pitch=0;
+      $("#tip").style.display="none";paint();
+    }
+    T.motionTest=true;
+    toast("DX 모션 체어 작동을 시작합니다");
+  }else{
+    T.motionTest=false;
+    toast("DX 모션 체어 작동을 종료했어요");
+  }
+  ui();
+}
+
+function makeMoldedBox(w,h,d,r=.04){
+  const s=new THREE.Shape(),hw=w/2-r,hh=h/2-r;
+  s.moveTo(-hw,-hh-r);s.lineTo(hw,-hh-r);s.quadraticCurveTo(hw+r,-hh-r,hw+r,-hh);
+  s.lineTo(hw+r,hh);s.quadraticCurveTo(hw+r,hh+r,hw,hh+r);
+  s.lineTo(-hw,hh+r);s.quadraticCurveTo(-hw-r,hh+r,-hw-r,hh);
+  s.lineTo(-hw-r,-hh);s.quadraticCurveTo(-hw-r,-hh-r,-hw,-hh-r);
+  const g=new THREE.ExtrudeGeometry(s,{depth:d-r*2,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:r,bevelThickness:r});
+  g.center();return g;
+}
+
+function buildSeats(k){
+  if(T.seatGroup)T.sc.remove(T.seatGroup);
+  const sg=new THREE.Group(),is4DX=k==="4DX",n=NROW*COLS;
+  const dm=new THREE.Object3D();
+  const fabricMat=new THREE.MeshStandardMaterial({roughness:.82,metalness:.05});
+  const trimMat=new THREE.MeshStandardMaterial({color:0x111216,roughness:.5,metalness:.3});
+  const metalMat=new THREE.MeshStandardMaterial({color:0x22252b,roughness:.35,metalness:.7});
+
+  const mk=(g,m)=>new THREE.InstancedMesh(g,m,n);
+  T.cush=mk(makeMoldedBox(is4DX?.52:.48,.14,.48,.035),fabricMat);
+  T.back=mk(makeMoldedBox(is4DX?.54:.48,.64,.11,.04),fabricMat);
+  T.head=mk(makeMoldedBox(is4DX?.40:.32,.18,.13,.04),fabricMat);
+  T.armL=mk(makeMoldedBox(.075,.07,.44,.02),trimMat);
+  T.armR=mk(makeMoldedBox(.075,.07,.44,.02),trimMat);
+  T.leg=mk(new THREE.BoxGeometry(.09,.38,.12),metalMat);
+
+  if(is4DX){
+    T.bolL=mk(makeMoldedBox(.08,.56,.18,.025),trimMat);
+    T.bolR=mk(makeMoldedBox(.08,.56,.18,.025),trimMat);
+    T.foot=mk(new THREE.BoxGeometry(.42,.04,.16),metalMat);
+    const podGeo=new THREE.BoxGeometry(2.52,.18,.82);
+    const podMat=new THREE.MeshStandardMaterial({color:0x0e0f12,roughness:.55,metalness:.45});
+    const pods=new THREE.InstancedMesh(podGeo,podMat,NROW*4);
+    let pi=0;
+    for(let r=0;r<NROW;r++){
+      for(let p=0;p<4;p++){
+        const cx=(SX(p*4)+SX(p*4+3))/2;
+        dm.position.set(cx,SY(r)+.25,SZ(r)+.02);dm.rotation.set(0,0,0);dm.updateMatrix();
+        pods.setMatrixAt(pi++,dm.matrix);
+      }
+    }
+    sg.add(pods,T.bolL,T.bolR,T.foot);
+  }else{
+    T.bolL=T.bolR=T.foot=null;
+  }
+
+  for(let r=0;r<NROW;r++){
+    const by=SY(r)+(is4DX?.34:.22);
+    for(let c=0;c<COLS;c++){
+      const i=r*COLS+c,x=SX(c),z=SZ(r);
+      dm.rotation.set(0,0,0);
+      dm.position.set(x,by+.24,z-.02);dm.updateMatrix();T.cush.setMatrixAt(i,dm.matrix);
+      dm.rotation.set(.15,0,0);
+      dm.position.set(x,by+.56,z+.21);dm.updateMatrix();T.back.setMatrixAt(i,dm.matrix);
+      dm.position.set(x,by+.91,z+.26);dm.updateMatrix();T.head.setMatrixAt(i,dm.matrix);
+      dm.rotation.set(0,0,0);
+      dm.position.set(x-.26,by+.42,z);dm.updateMatrix();T.armL.setMatrixAt(i,dm.matrix);
+      dm.position.set(x+.26,by+.42,z);dm.updateMatrix();T.armR.setMatrixAt(i,dm.matrix);
+      dm.position.set(x,by+.06,z+.06);dm.updateMatrix();T.leg.setMatrixAt(i,dm.matrix);
+
+      if(is4DX){
+        dm.rotation.set(.15,.22,0);
+        dm.position.set(x-.25,by+.58,z+.16);dm.updateMatrix();T.bolL.setMatrixAt(i,dm.matrix);
+        dm.rotation.set(.15,-.22,0);
+        dm.position.set(x+.25,by+.58,z+.16);dm.updateMatrix();T.bolR.setMatrixAt(i,dm.matrix);
+        dm.rotation.set(-.25,0,0);
+        dm.position.set(x,by+.12,z-.34);dm.updateMatrix();T.foot.setMatrixAt(i,dm.matrix);
+      }
+    }
+  }
+  sg.add(T.cush,T.back,T.head,T.armL,T.armR,T.leg);
+  T.seatGroup=sg;
+  T.sc.add(sg);
+}
+
+function init3D(){
+  const r=new THREE.WebGLRenderer({antialias:true});
+  r.setPixelRatio(Math.min(devicePixelRatio||1,2));
+  const sc=new THREE.Scene();
+  sc.background=new THREE.Color(0x020204);
+  sc.fog=new THREE.FogExp2(0x020204,.024);
+  T.r=r;T.sc=sc;
+  T.cam=new THREE.PerspectiveCamera(54,1.6,.1,70);
+  T.icam=new THREE.PerspectiveCamera(64,16/9,.1,70);
+  T.OVP=new THREE.Vector3(0,9.2,18.2);
+  T.OVL=new THREE.Vector3(0,3.2,2.5);
+  T.cp=T.OVP.clone();T.ct=T.OVL.clone();
+  T.col=new THREE.Color();T.ray=new THREE.Raycaster();T.m=new THREE.Vector2();
+
+  sc.add(new THREE.AmbientLight(0x94a3b8,.16));
+  const scrLight=new THREE.PointLight(0x60a5fa,.68,32);scrLight.position.set(0,5.0,1.8);sc.add(scrLight);
+  const ceilLight=new THREE.PointLight(0xffffff,.16,38);ceilLight.position.set(0,10.5,11);sc.add(ceilLight);
+
+  const room=new THREE.Mesh(new THREE.BoxGeometry(23,11.5,21),new THREE.MeshStandardMaterial({color:0x07080b,side:THREE.BackSide,roughness:.95}));
+  room.position.set(0,5.75,9.5);sc.add(room);
+  const stageFloor=new THREE.Mesh(new THREE.BoxGeometry(22.5,.3,5.5),new THREE.MeshStandardMaterial({color:0x090a0d,roughness:.4,metalness:.2}));
+  stageFloor.position.set(0,.15,2.2);sc.add(stageFloor);
+
+  const stepMat=new THREE.MeshStandardMaterial({color:0x0d0e12,roughness:.9});
+  const ledMat=new THREE.MeshBasicMaterial({color:0xd95b16});
+  for(let i=0;i<NROW;i++){
+    const h=SY(i)+.24,z=SZ(i);
+    const st=new THREE.Mesh(new THREE.BoxGeometry(21.5,h,1.2),stepMat);
+    st.position.set(0,h/2,z);sc.add(st);
+    [-2.75,2.75].forEach(ax=>{
+      const led=new THREE.Mesh(new THREE.BoxGeometry(.26,.022,.04),ledMat);
+      led.position.set(ax,h+.01,z-.59);sc.add(led);
+    });
+  }
+
+  const bafMat=new THREE.MeshStandardMaterial({color:0x0a0b0e,roughness:.95});
+  for(let z=3;z<=16;z+=2.6){
+    const baf=new THREE.Mesh(new THREE.BoxGeometry(20,.35,.22),bafMat);
+    baf.position.set(0,11.1,z);sc.add(baf);
+  }
+  const booth=new THREE.Mesh(new THREE.PlaneGeometry(2.2,.8),new THREE.MeshBasicMaterial({color:0x93c5fd}));
+  booth.position.set(0,8.6,19.9);booth.rotation.y=Math.PI;sc.add(booth);
+  const beam=new THREE.Mesh(new THREE.ConeGeometry(4.5,19.5,24,1,true),new THREE.MeshBasicMaterial({color:0x93c5fd,transparent:true,opacity:.026,side:THREE.DoubleSide,depthWrite:false}));
+  beam.position.set(0,6.4,10.2);beam.rotation.x=-Math.PI/2-.22;sc.add(beam);
+
+  const cv=r.domElement;let dn=null;
+  const hit=e=>{
+    const b=cv.getBoundingClientRect();
+    T.m.set((e.clientX-b.left)/b.width*2-1,-((e.clientY-b.top)/b.height)*2+1);
+    T.ray.setFromCamera(T.m,T.cam);
+    const targets=[T.cush,T.back,T.head].filter(Boolean);
+    const h=T.ray.intersectObjects(targets)[0];
+    return h?h.instanceId:null;
+  };
+  cv.addEventListener("pointerdown",e=>{dn={x:e.clientX,y:e.clientY,mv:false};try{cv.setPointerCapture(e.pointerId)}catch(_){}});
+  cv.addEventListener("pointermove",e=>{
+    if(T.mode==="seat"){
+      if(dn){const dx=e.clientX-dn.x,dy=e.clientY-dn.y;if(Math.abs(dx)+Math.abs(dy)>3)dn.mv=true;
+        T.yaw=Math.max(-.95,Math.min(.95,T.yaw-dx*.004));T.pitch=Math.max(-.5,Math.min(.55,T.pitch+dy*.004));dn.x=e.clientX;dn.y=e.clientY}
+      return;
+    }
+    const i=hit(e),tip=$("#tip");
+    if(i!==T.hov){T.hov=i;paint()}
+    if(i==null)tip.style.display="none";
+    else{const b=cv.getBoundingClientRect();tip.style.display="block";tip.style.left=(e.clientX-b.left+14)+"px";tip.style.top=(e.clientY-b.top+14)+"px";tip.textContent=sid(i)+" · 클릭하면 이 자리에서 보기"}
+    cv.style.cursor=i!=null?"pointer":"default";
+  });
+  cv.addEventListener("pointerup",e=>{
+    const d=dn;dn=null;if(T.mode==="seat"||(d&&d.mv))return;
+    const i=hit(e);if(i==null)return;
+    T.mode="seat";T.sel=[Math.floor(i/COLS),i%COLS];T.last=i;T.yaw=T.pitch=0;
+    $("#tip").style.display="none";paint();ui();
+  });
+  cv.addEventListener("pointerleave",()=>{if(T.hov!=null){T.hov=null;paint()}$("#tip").style.display="none"});
+  addEventListener("resize",()=>{if(page()==="theater")resize()});
+  T.ok=true;loop();
+}
+
+function screenTex(k){
+  const cv=document.createElement("canvas");cv.width=1024;cv.height=512;const g=cv.getContext("2d");
+  const gr=g.createRadialGradient(512,256,40,512,256,560);
+  gr.addColorStop(0,"#1c2230");
+  gr.addColorStop(1,"#090b10");
+  g.fillStyle=gr;g.fillRect(0,0,1024,512);
+  g.strokeStyle="rgba(255,255,255,.28)";g.lineWidth=3;g.strokeRect(16,16,992,480);
+  g.fillStyle="#f8fafc";g.textAlign="center";g.font="700 84px sans-serif";
+  g.fillText(k,512,282);
+  const tx=new THREE.CanvasTexture(cv);
+  tx.needsUpdate=true;
+  return tx;
+}
+
+function buildHall(k){
+  if(T.hall)T.sc.remove(T.hall);
+  const g=new THREE.Group(),big=k==="IMAX",W=big?16.8:13.4,H=big?7.8:5.8,cy=big?4.9:3.8,tx=screenTex(k);
+  const accent=fmts[k][3];
+
+  const frame=new THREE.Mesh(new THREE.BoxGeometry(W+.45,H+.45,.25),new THREE.MeshStandardMaterial({color:0x040406,roughness:.8}));
+  frame.position.set(0,cy,-.35);g.add(frame);
+  const scr=new THREE.Mesh(new THREE.PlaneGeometry(W,H),new THREE.MeshBasicMaterial({map:tx}));
+  scr.position.set(0,cy,-.2);g.add(scr);
+
+  const panelMat=new THREE.MeshStandardMaterial({color:0x0b0c10,roughness:.9});
+  const stripMat=new THREE.MeshBasicMaterial({color:accent});
+  [-1,1].forEach(side=>{
+    for(let z=3.5;z<=16.5;z+=2.6){
+      const pan=new THREE.Mesh(new THREE.BoxGeometry(.28,8.5,1.6),panelMat);
+      pan.position.set(side*11.2,5.2,z);g.add(pan);
+      const led=new THREE.Mesh(new THREE.BoxGeometry(.04,7.4,.06),stripMat);
+      led.position.set(side*11.02,5.2,z+.82);g.add(led);
+    }
+  });
+
+  if(k==="SCREENX")[-1,1].forEach(d=>{
+    const w=new THREE.Mesh(new THREE.PlaneGeometry(6.2,H*.88),new THREE.MeshBasicMaterial({map:tx,color:0x94a3b8,side:THREE.DoubleSide}));
+    w.position.set(d*(W/2+2.6),cy,2.1);w.rotation.y=-d*.52;g.add(w);
+  });
+  if(k==="Dolby Atmos")for(let i=0;i<18;i++){
+    const sp=new THREE.Mesh(new THREE.BoxGeometry(.38,.22,.38),new THREE.MeshStandardMaterial({color:0x14151a,emissive:0xf59e0b,emissiveIntensity:.25}));
+    sp.position.set((i%2?-1:1)*6.2,10.7,2.0+Math.floor(i/2)*1.8);g.add(sp);
+  }
+  T.hall=g;T.sc.add(g);T.ty=cy;
+}
+
+function paint(){
+  if(!T.cush)return;
+  const si=T.sel?T.sel[0]*COLS+T.sel[1]:-1;
+  const baseHex=fmt==="4DX"?0x2b1e22:0x23262e;
+  for(let i=0;i<NROW*COLS;i++){
+    T.col.setHex(i===si?0xFF0001:T.hov===i?0xff7a7a:baseHex);
+    T.cush.setColorAt(i,T.col);
+    T.back.setColorAt(i,T.col);
+    T.head.setColorAt(i,T.col);
+  }
+  T.cush.instanceColor.needsUpdate=T.back.instanceColor.needsUpdate=T.head.instanceColor.needsUpdate=true;
+}
+
+function resize(){
+  const h=$("#v3");if(!T.r||!h)return;
+  T.w=h.clientWidth;T.h=h.clientHeight;
+  T.r.setSize(T.w,T.h,false);
+  T.cam.aspect=T.w/T.h;T.cam.updateProjectionMatrix();
+  T.iw=Math.round(Math.min(240,T.w*.32));T.ih=Math.round(T.iw*9/16);
+  const b=$("#inb");b.style.width=T.iw+"px";b.style.height=T.ih+"px";
+}
+
+function ui(){
+  const v=$("#vbar"),vb=$("#vback"),b4=$("#btn4dxTest"),hud=$("#motionHud");
+  if(!v||!T.r)return;
+  const isSeat=T.mode==="seat"&&T.sel;
+  const is4DX=fmt==="4DX";
+  T.r.domElement.style.touchAction=isSeat?"none":"pan-y";
+  if(vb)vb.classList.toggle("hidden",!isSeat);
+  if(hud)hud.classList.toggle("hidden",!(is4DX&&T.motionTest));
+  if(b4){
+    b4.classList.toggle("hidden",!is4DX);
+    b4.classList.toggle("on",T.motionTest);
+    b4.textContent=T.motionTest?"4DX 모션 테스트 중지":"4DX 모션 체어 테스트";
+  }
+  const mBtn=is4DX?`<button class="pill-btn${T.motionTest?" on":""}" style="padding:5px 12px;font-size:12px" onclick="toggle4DXMotion()">${T.motionTest?"모션 중지":"모션 테스트"}</button>`:"";
+  v.innerHTML=isSeat
+    ?`<span>내 시야 · ${ROWS[T.sel[0]]}${T.sel[1]+1} · 드래그로 둘러보기</span><div class="vbar-acts">${mBtn}<button class="pill-btn go" style="padding:5px 14px;font-size:12px" onclick="viewOver()">전체 보기</button></div>`
+    :`<span>좌석에 마우스를 올리면 상단에서 시야를 미리보고, 클릭하면 그 자리로 이동해요</span><div class="vbar-acts">${mBtn}</div>`;
+}
+
+function open3D(){
+  if(T.ok===false)return;
+  const host=$("#v3");
+  if(!T.r){try{init3D();host.prepend(T.r.domElement)}catch(e){T.ok=false;T.r=null;host.innerHTML='<div class="v3err">이 기기에서는 3D를 불러올 수 없어요</div>';return}}
+  T.mode="over";T.sel=null;T.last=null;T.hov=null;T.yaw=T.pitch=0;T.motionTest=false;T.cp.copy(T.OVP);T.ct.copy(T.OVL);T.ik=null;
+  buildHall(fmt);buildSeats(fmt);paint();ui();resize();
+}
+
+function loop(){
+  requestAnimationFrame(loop);
+  const r=T.r;if(!r||page()!=="theater"||!T.w)return;
+  const seatM=T.mode==="seat"&&T.sel,ty=T.ty||3.8;
+  const tp=seatM?SEYE(T.sel[0],T.sel[1]).clone():T.OVP.clone();
+  const tl=seatM?new THREE.Vector3(T.yaw*11,ty+T.pitch*6,-.2):T.OVL.clone();
+
+  let rollAngle=0;
+  if(seatM&&fmt==="4DX"&&T.motionTest){
+    const now=performance.now()*0.001;
+    const waveA=Math.sin(now*6.5);
+    const waveB=Math.cos(now*4.2);
+    const rumble=Math.sin(now*38)*0.022;
+    tp.y+=waveA*0.16+rumble;
+    tp.x+=waveB*0.14;
+    tl.y+=waveA*0.85+rumble*4;
+    tl.x+=waveB*0.95;
+    rollAngle=waveB*0.045;
+  }
+
+  T.cp.lerp(tp,T.motionTest?.22:.045);
+  T.ct.lerp(tl,T.motionTest?.25:.065);
+  T.cam.position.copy(T.cp);
+  T.cam.up.set(Math.sin(rollAngle),Math.cos(rollAngle),0);
+  T.cam.lookAt(T.ct);
+  T.cam.fov+=((seatM?74:54)-T.cam.fov)*.05;
+  T.cam.updateProjectionMatrix();
+  r.setScissorTest(false);r.setViewport(0,0,T.w,T.h);r.render(T.sc,T.cam);
+
+  const f=seatM?null:(T.hov!=null?T.hov:T.last),b=$("#inb");
+  if(f!=null){
+    const sy=T.h-T.ih-56;
+    T.icam.position.copy(SEYE(Math.floor(f/COLS),f%COLS));
+    T.icam.lookAt(0,ty,-.2);
+    r.setScissorTest(true);
+    r.setScissor(T.w-T.iw-12,sy,T.iw,T.ih);
+    r.setViewport(T.w-T.iw-12,sy,T.iw,T.ih);
+    r.render(T.sc,T.icam);
+    r.setScissorTest(false);
+  }
+  const key=String(f);
+  if(T.ik!==key){T.ik=key;b.style.display=f==null?"none":"block";if(f!=null)b.innerHTML=`<span>내 시야 · ${sid(f)}</span>`}
+}
+
+/* 초기화 */
+initStage();initCuration();drawGrid($("#mg"),movies,"영화");drawGrid($("#sg"),items,"매점");mountHome();showT(fmt);updateCartBtn();route();
+</script>
 </body>
 </html>
